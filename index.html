@@ -1,0 +1,2523 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ASSKAR KARAWANG - Official System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#fef2f2', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            @page { size: A4; margin: 1cm; }
+        }
+        .id-card-print {
+            width: 8.56cm;
+            height: 5.4cm;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-900 text-slate-100 flex flex-col antialiased">
+
+    <!-- Modal Notifikasi -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 max-w-sm w-full rounded-3xl p-6 shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-12 h-12 rounded-full bg-brand-500/20 text-brand-400 mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h4 id="modal-title" class="font-bold text-white text-lg">Informasi</h4>
+            <p id="modal-message" class="text-sm text-slate-300">Pesan sistem...</p>
+            <div class="pt-2 flex justify-center gap-2">
+                <button onclick="closeModal()" class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold py-3 rounded-2xl text-sm transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Container -->
+    <div id="auth-container" class="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-md w-full bg-slate-800/90 backdrop-blur border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl my-auto">
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="w-20 h-20 bg-gradient-to-tr from-brand-600 to-rose-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-brand-500/30 mb-4 p-2 overflow-hidden bg-white">
+                    <img src="https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" alt="Logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-shield-halved text-3xl text-white\'></i>';">
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">ASSKAR KARAWANG</h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1">Sistem Manajemen Kompetisi Resmi</p>
+            </div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Masukkan Username</label>
+                    <input type="text" id="login-team" required placeholder="Masukkan Username" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3.5 text-slate-100 text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Kata Sandi Akses</label>
+                    <input type="password" id="login-pass" required placeholder="Masukkan kata sandi" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3.5 text-slate-100 text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold py-3.5 rounded-2xl transition duration-200 shadow-lg shadow-brand-600/30 text-sm flex items-center justify-center gap-2">
+                    <span>Masuk ke Sistem</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- App Main Container -->
+    <div id="app-container" class="hidden flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+        <!-- Mobile Header -->
+        <div class="md:hidden bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between no-print z-20">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center p-1 overflow-hidden shadow">
+                    <img id="mobile-nav-logo" src="https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" alt="Logo" class="w-full h-full object-contain">
+                </div>
+                <div>
+                    <h2 id="mobile-team-title" class="font-bold text-xs text-white truncate max-w-[160px]">ASSKAR KARAWANG</h2>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Online</span>
+                </div>
+            </div>
+            <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-700/60 rounded-xl flex items-center justify-center text-slate-200">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Drawer -->
+        <aside id="sidebar-drawer" class="fixed inset-y-0 left-0 z-40 w-72 md:w-64 bg-slate-800/95 md:bg-slate-800/90 border-r border-slate-700/60 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 no-print">
+            <div class="p-5 border-b border-slate-700/60 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1 overflow-hidden shadow">
+                        <img id="sidebar-nav-logo" src="https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" alt="Logo" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <h2 id="current-team-title" class="font-bold text-sm text-white truncate max-w-[130px]">ASSKAR KARAWANG</h2>
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Cloud Active</span>
+                    </div>
+                </div>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('profil')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="profil">
+                    <i class="fa-solid fa-shield-cat w-5 text-center"></i> <span>Profil Tim</span>
+                </button>
+                <button onclick="switchTab('pemain')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="pemain">
+                    <i class="fa-solid fa-users w-5 text-center"></i> <span>Data Pemain</span>
+                </button>
+                <button onclick="switchTab('official')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="official">
+                    <i class="fa-solid fa-user-tie w-5 text-center"></i> <span>Data Official</span>
+                </button>
+                <button onclick="switchTab('kompetisi')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="kompetisi">
+                    <i class="fa-solid fa-medal w-5 text-center"></i> <span>Kompetisi & Skuad</span>
+                </button>
+                <button onclick="switchTab('idcard')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="idcard">
+                    <i class="fa-solid fa-id-card w-5 text-center"></i> <span>ID Card Tim</span>
+                </button>
+                <button onclick="switchTab('jadwal')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="jadwal">
+                    <i class="fa-solid fa-calendar-days w-5 text-center"></i> <span>Jadwal Laga</span>
+                </button>
+                <button onclick="switchTab('hasil')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="hasil">
+                    <i class="fa-solid fa-trophy w-5 text-center"></i> <span>Klasemen & Top Skorer</span>
+                </button>
+                <button onclick="switchTab('dsp')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="dsp">
+                    <i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span>DSP Pemain</span>
+                </button>
+                <button onclick="switchTab('summary')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-slate-300 hover:bg-slate-700/50 hover:text-white" data-tab="summary">
+                    <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Match Summary</span>
+                </button>
+                <!-- Admin Only Tabs -->
+                <button id="nav-verifikasi-btn" onclick="switchTab('verifikasi')" class="hidden nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-emerald-300 hover:bg-slate-700/50" data-tab="verifikasi">
+                    <i class="fa-solid fa-user-check w-5 text-center"></i> <span>Verifikasi Pemain</span>
+                </button>
+                <button id="nav-admin-btn" onclick="switchTab('admin')" class="hidden nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition text-amber-300 hover:bg-slate-700/50" data-tab="admin">
+                    <i class="fa-solid fa-key w-5 text-center"></i> <span>Admin: Kelola Tim & Sandi</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700/60">
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 py-3 rounded-2xl text-sm font-medium transition">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar / Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-slate-900 w-full">
+            <header class="hidden md:flex h-16 bg-slate-800/80 border-b border-slate-700/60 px-6 items-center justify-between no-print">
+                <h3 id="page-title" class="text-lg font-bold text-white">Dashboard Overview</h3>
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/25 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Sahrikapi Cloud Storage Connected
+                </span>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                
+                <!-- TAB: DASHBOARD -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                        <div class="bg-slate-800/70 border border-slate-700/50 p-4 sm:p-5 rounded-2xl">
+                            <div class="flex items-center justify-between text-slate-400 mb-2">
+                                <span class="text-[10px] sm:text-xs font-semibold uppercase">Total Pemain</span>
+                                <i class="fa-solid fa-users text-brand-400 text-base sm:text-lg"></i>
+                            </div>
+                            <h4 id="stat-total-pemain" class="text-xl sm:text-2xl font-bold text-white">0</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Terdaftar</p>
+                        </div>
+                        <div class="bg-slate-800/70 border border-slate-700/50 p-4 sm:p-5 rounded-2xl">
+                            <div class="flex items-center justify-between text-slate-400 mb-2">
+                                <span class="text-[10px] sm:text-xs font-semibold uppercase">Jadwal Laga</span>
+                                <i class="fa-solid fa-calendar-days text-amber-400 text-base sm:text-lg"></i>
+                            </div>
+                            <h4 id="stat-total-jadwal" class="text-xl sm:text-2xl font-bold text-white">0</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Kompetisi</p>
+                        </div>
+                        <div class="bg-slate-800/70 border border-slate-700/50 p-4 sm:p-5 rounded-2xl">
+                            <div class="flex items-center justify-between text-slate-400 mb-2">
+                                <span class="text-[10px] sm:text-xs font-semibold uppercase">Poin Tim</span>
+                                <i class="fa-solid fa-award text-emerald-400 text-base sm:text-lg"></i>
+                            </div>
+                            <h4 id="stat-total-poin" class="text-xl sm:text-2xl font-bold text-white">0</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Klasemen</p>
+                        </div>
+                        <div class="bg-slate-800/70 border border-slate-700/50 p-4 sm:p-5 rounded-2xl">
+                            <div class="flex items-center justify-between text-slate-400 mb-2">
+                                <span class="text-[10px] sm:text-xs font-semibold uppercase">Top Skorer</span>
+                                <i class="fa-solid fa-futbol text-indigo-400 text-base sm:text-lg"></i>
+                            </div>
+                            <h4 id="stat-top-scorer" class="text-lg sm:text-xl font-bold text-white truncate">-</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-1">Pencetak Gol Terbanyak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PROFIL TIM -->
+                <div id="tab-profil" class="tab-content hidden space-y-6">
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 sm:p-8 rounded-3xl space-y-6 max-w-3xl mx-auto shadow-xl">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700 pb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Profil Resmi Tim & Sahrikapi Cloud Storage</h4>
+                                <p class="text-xs text-slate-400">Tersimpan otomatis ke cloud sahrikapi@gmail.com</p>
+                            </div>
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <select id="profil-admin-selector" onchange="switchProfilTeam(this.value)" class="hidden bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 font-semibold focus:outline-none focus:border-brand-500"></select>
+                                <button onclick="saveProfilTim()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">Simpan Profil</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nama Tim</label>
+                                <input type="text" id="prof-nama" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Email Tim</label>
+                                <input type="email" id="prof-email" placeholder="sahrikapi@gmail.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tahun Berdiri</label>
+                                <input type="number" id="prof-tahun" placeholder="2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Legalitas</label>
+                                <select id="prof-legalitas" onchange="toggleLegalitasFile()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                                    <option value="Non Berbadan Hukum">Non Berbadan Hukum</option>
+                                    <option value="Berbadan Hukum">Berbadan Hukum</option>
+                                </select>
+                            </div>
+                            <div id="prof-legalfile-wrapper" class="hidden">
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Upload File Legalitas (Sahrikapi Cloud)</label>
+                                <input type="file" id="prof-legal-file" accept="image/*,.pdf" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white">
+                                <input type="hidden" id="prof-legal-url">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nama Pemilik / Presiden Klub</label>
+                                <input type="text" id="prof-pemilik" placeholder="Nama pemilik..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">No Telepon / Kontak</label>
+                                <input type="text" id="prof-telepon" placeholder="0812xxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Alamat Markas / Sekretariat</label>
+                                <textarea id="prof-alamat" rows="2" placeholder="Alamat lengkap..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm"></textarea>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Logo Tim (Sahrikapi Cloud)</label>
+                                <div class="flex items-center gap-4">
+                                    <img id="prof-logo-preview" src="" class="w-16 h-16 rounded-xl object-contain bg-white p-1 border border-slate-700">
+                                    <input type="file" id="prof-logo-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white">
+                                    <input type="hidden" id="prof-logo-url">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PEMAIN -->
+                <div id="tab-pemain" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl">
+                        <div>
+                            <h4 class="text-base sm:text-lg font-bold text-white">Data Pemain Tim (Sahrikapi Cloud Storage)</h4>
+                            <p class="text-xs text-slate-400">Foto & dokumen pemain terhubung ke cloud sahrikapi@gmail.com</p>
+                        </div>
+                        <button onclick="openPemainModal()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-2xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-user-plus"></i> Tambah Pemain Baru
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800/70 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[700px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700 bg-slate-900/50 text-xs uppercase tracking-wider text-slate-400">
+                                        <th class="p-4">Pemain</th>
+                                        <th class="p-4">Tim</th>
+                                        <th class="p-4">Kelompok Usia</th>
+                                        <th class="p-4">TTL & NIK</th>
+                                        <th class="p-4">Status Verifikasi</th>
+                                        <th class="p-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-pemain-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: OFFICIAL -->
+                <div id="tab-official" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl">
+                        <div>
+                            <h4 class="text-base sm:text-lg font-bold text-white">Data Official Tim (Pelatih & Manajer)</h4>
+                            <p class="text-xs text-slate-400">Kelola data resmi official klub.</p>
+                        </div>
+                        <button onclick="openOfficialModal()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-2xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-user-tie"></i> Tambah Official Baru
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800/70 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[700px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700 bg-slate-900/50 text-xs uppercase tracking-wider text-slate-400">
+                                        <th class="p-4">Official</th>
+                                        <th class="p-4">Jabatan</th>
+                                        <th class="p-4">Tim</th>
+                                        <th class="p-4">Kontak / Lisensi</th>
+                                        <th class="p-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-official-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: KOMPETISI & SKUAD -->
+                <div id="tab-kompetisi" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl">
+                        <div>
+                            <h4 class="text-base sm:text-lg font-bold text-white">Pendaftaran Kompetisi & Skuad Pemain</h4>
+                            <p class="text-xs text-slate-400">Tim mendaftarkan skuad pemain (Jadwal otomatis akan tergenerate).</p>
+                        </div>
+                        <button onclick="openKompetisiModal()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-2xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-medal"></i> Daftar / Pilih Kompetisi
+                        </button>
+                    </div>
+
+                    <div id="list-kompetisi-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                </div>
+
+                <!-- TAB: ID CARD -->
+                <div id="tab-idcard" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl no-print">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white">ID Card Pemain & Official Terverifikasi</h4>
+                                <p class="text-xs text-slate-400">ID Card dengan foto cloud sahrikapi@gmail.com</p>
+                            </div>
+                            <select id="idcard-filter-type" onchange="renderIDCards()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 font-semibold focus:outline-none focus:border-brand-500">
+                                <option value="pemain">Pemain</option>
+                                <option value="official">Official Tim</option>
+                            </select>
+                        </div>
+                        <button onclick="window.print()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-print"></i> Cetak ID Card (A4)
+                        </button>
+                    </div>
+
+                    <div id="idcard-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+
+                <!-- TAB: JADWAL -->
+                <div id="tab-jadwal" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl">
+                        <div class="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white">Jadwal Pertandingan (Otomatis & Kustom Manual)</h4>
+                                <p class="text-xs text-slate-400">Jadwal otomatis dari pendaftaran atau kustomisasi manual oleh Admin.</p>
+                            </div>
+                            <select id="jadwal-group-filter" onchange="renderJadwal()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 font-semibold focus:outline-none focus:border-brand-500">
+                                <option value="ALL">Semua Kelompok Usia</option>
+                                <option value="Usia Dini">Usia Dini</option>
+                                <option value="U8">U8</option>
+                                <option value="U9">U9</option>
+                                <option value="U10">U10</option>
+                                <option value="U11">U11</option>
+                                <option value="U12">U12</option>
+                                <option value="U13">U13</option>
+                                <option value="U14">U14</option>
+                                <option value="U15">U15</option>
+                                <option value="U16">U16</option>
+                                <option value="U17" selected>U17</option>
+                                <option value="U18">U18</option>
+                                <option value="U19">U19</option>
+                                <option value="SENIOR">Senior</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button id="btn-tambah-jadwal-manual" onclick="openJadwalModal()" class="hidden w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-2xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-calendar-plus"></i> Tambah / Kustom Jadwal (Admin)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="list-jadwal-container"></div>
+                </div>
+
+                <!-- TAB: KLASEMEN & TOP SKORER -->
+                <div id="tab-hasil" class="tab-content hidden space-y-6">
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl space-y-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white">Klasemen Kompetisi</h4>
+                                <p class="text-xs text-slate-400">Pilih kelompok usia kompetisi.</p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                <select id="klasemen-kompetisi-select" onchange="renderKlasemen()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200">
+                                    <option value="">-- Semua Kompetisi --</option>
+                                </select>
+                                <input type="text" id="klasemen-search" oninput="renderKlasemen()" placeholder="Cari nama tim..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200">
+                                <select id="klasemen-group-filter" onchange="renderKlasemen()" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 font-semibold focus:outline-none focus:border-brand-500">
+                                    <option value="Usia Dini">Usia Dini</option>
+                                    <option value="U8">U8</option>
+                                    <option value="U9">U9</option>
+                                    <option value="U10">U10</option>
+                                    <option value="U11">U11</option>
+                                    <option value="U12">U12</option>
+                                    <option value="U13">U13</option>
+                                    <option value="U14">U14</option>
+                                    <option value="U15">U15</option>
+                                    <option value="U16">U16</option>
+                                    <option value="U17" selected>U17</option>
+                                    <option value="U18">U18</option>
+                                    <option value="U19">U19</option>
+                                    <option value="SENIOR">Senior Team</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700 bg-slate-900/50 text-xs uppercase tracking-wider text-slate-400">
+                                        <th class="p-3 text-center">Pos</th>
+                                        <th class="p-3">Tim (<span id="current-group-label">U17</span>)</th>
+                                        <th class="p-3 text-center">Main</th>
+                                        <th class="p-3 text-center">M</th>
+                                        <th class="p-3 text-center">S</th>
+                                        <th class="p-3 text-center">K</th>
+                                        <th class="p-3 text-center">SG</th>
+                                        <th class="p-3 text-center font-bold text-brand-400">Poin</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-klasemen-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Skorer Section -->
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white">Daftar Top Skorer</h4>
+                                <p class="text-xs text-slate-400">Pencetak gol terbanyak.</p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700 bg-slate-900/50 text-xs uppercase tracking-wider text-slate-400">
+                                        <th class="p-3 text-center w-12">No</th>
+                                        <th class="p-3">Nama Pemain</th>
+                                        <th class="p-3">Tim</th>
+                                        <th class="p-3 text-center font-bold text-brand-400">Jumlah Gol</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-topskorer-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: DSP PEMAIN -->
+                <div id="tab-dsp" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl no-print">
+                        <div>
+                            <h4 class="text-base sm:text-lg font-bold text-white">Daftar Susunan Pemain (DSP) & Kelompok Usia</h4>
+                            <p class="text-xs text-slate-400">Cetak DSP resmi pertandingan.</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <select id="dsp-filter-kompetisi" onchange="renderDSP()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200"></select>
+                            <input type="text" id="dsp-jersey-input" oninput="renderDSP()" placeholder="Warna Jersey..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 w-32">
+                            <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-print"></i> Cetak DSP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Printable DSP Sheet -->
+                    <div id="dsp-print-area" class="bg-white text-slate-900 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-4xl mx-auto space-y-6">
+                        <div class="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-extrabold uppercase tracking-wide">ASSKAR KARAWANG</h2>
+                                <p class="text-xs sm:text-sm font-semibold text-slate-700">DAFTAR SUSUNAN PEMAIN (DSP) RESMI</p>
+                            </div>
+                            <div class="text-left sm:text-right text-xs space-y-1">
+                                <p><strong>Kompetisi:</strong> <span id="dsp-print-kompetisi">-</span></p>
+                                <p><strong>Kelompok Usia:</strong> <span id="dsp-print-usia" class="font-bold text-brand-600">-</span></p>
+                                <p><strong>Tim:</strong> <span id="dsp-print-team">-</span></p>
+                                <p><strong>Warna Jersey:</strong> <span id="dsp-print-jersey" class="italic text-slate-600">-</span></p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse border border-slate-400 text-xs">
+                                <thead>
+                                    <tr class="bg-slate-200 text-slate-900 uppercase font-bold text-[11px] border-b border-slate-400">
+                                        <th class="p-2.5 border-r border-slate-400 text-center w-12">No</th>
+                                        <th class="p-2.5 border-r border-slate-400 text-center w-16">No Punggung</th>
+                                        <th class="p-2.5 border-r border-slate-400">Nama Lengkap Pemain</th>
+                                        <th class="p-2.5 border-r border-slate-400 text-center w-32">Posisi</th>
+                                        <th class="p-2.5 text-center w-40">Status (Tulis Tangan)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-dsp-body" class="divide-y divide-slate-300"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-8 pt-10 mt-10 border-t border-slate-300 text-center text-xs">
+                            <div>
+                                <p class="font-bold uppercase text-slate-700 mb-14">Manajer Tim / Official</p>
+                                <div class="border-b border-slate-400 w-40 sm:w-48 mx-auto"></div>
+                                <p class="mt-2 text-slate-600">( Nama & Tanda Tangan )</p>
+                            </div>
+                            <div>
+                                <p class="font-bold uppercase text-slate-700 mb-14">Pelatih Kepala (Coach)</p>
+                                <div class="border-b border-slate-400 w-40 sm:w-48 mx-auto"></div>
+                                <p class="mt-2 text-slate-600">( Nama & Tanda Tangan )</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: MATCH SUMMARY -->
+                <div id="tab-summary" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl no-print">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white">Match Summary & Download Data Pemain</h4>
+                                <p class="text-xs text-slate-400">Unduh daftar pemain lengkap pertandingan.</p>
+                            </div>
+                            <select id="summary-group-filter" onchange="populateJadwalDropdowns()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200">
+                                <option value="ALL">Semua Usia</option>
+                                <option value="Usia Dini">Usia Dini</option>
+                                <option value="U8">U8</option>
+                                <option value="U9">U9</option>
+                                <option value="U10">U10</option>
+                                <option value="U11">U11</option>
+                                <option value="U12">U12</option>
+                                <option value="U13">U13</option>
+                                <option value="U14">U14</option>
+                                <option value="U15">U15</option>
+                                <option value="U16">U16</option>
+                                <option value="U17" selected>U17</option>
+                                <option value="U18">U18</option>
+                                <option value="U19">U19</option>
+                                <option value="SENIOR">Senior</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-wrap">
+                            <select id="summary-filter-jadwal" onchange="renderSummary()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200">
+                                <option value="">Pilih Pertandingan</option>
+                            </select>
+                            <button onclick="downloadMatchPlayersManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download Data Pemain (Manual)
+                            </button>
+                            <button id="btn-input-skor" onclick="openInputSkorModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+                                <i class="fa-solid fa-pen-to-square"></i> Input Hasil & Statistik (Admin)
+                            </button>
+                            <button id="btn-print-summary" onclick="handleAdminPrintPdf()" class="hidden bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-print"></i> Cetak PDF (Admin)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="summary-print-area" class="bg-white text-slate-900 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-5xl mx-auto space-y-6">
+                        <div class="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-extrabold uppercase tracking-wide">ASSKAR KARAWANG - Official Match Summary</h2>
+                                <p class="text-xs sm:text-sm text-slate-600" id="sum-match-info">Pilih pertandingan terlebih dahulu</p>
+                            </div>
+                            <div class="text-left sm:text-right">
+                                <span class="text-[10px] sm:text-xs font-bold bg-slate-900 text-white px-3 py-1 rounded">OFFICIAL REPORT</span>
+                                <p class="text-[11px] text-slate-500 mt-1" id="sum-match-date">Tanggal: -</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center bg-slate-100 p-4 sm:p-6 rounded-2xl border border-slate-300 text-center">
+                            <div><h3 id="sum-team1-name" class="font-bold text-sm sm:text-lg truncate">Tim A</h3></div>
+                            <div class="text-2xl sm:text-3xl font-extrabold text-brand-700"><span id="sum-score1">0</span> - <span id="sum-score2">0</span></div>
+                            <div><h3 id="sum-team2-name" class="font-bold text-sm sm:text-lg truncate">Tim B</h3></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                            <div class="space-y-2 border border-slate-300 p-4 rounded-2xl">
+                                <h4 id="sum-team1-title" class="font-bold text-slate-900 text-sm border-b pb-1">Daftar Pemain Tim 1</h4>
+                                <div id="sum-team1-players" class="text-xs space-y-1 text-slate-700 max-h-48 overflow-y-auto">-</div>
+                            </div>
+                            <div class="space-y-2 border border-slate-300 p-4 rounded-2xl">
+                                <h4 id="sum-team2-title" class="font-bold text-slate-900 text-sm border-b pb-1">Daftar Pemain Tim 2</h4>
+                                <div id="sum-team2-players" class="text-xs space-y-1 text-slate-700 max-h-48 overflow-y-auto">-</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-slate-800 text-sm border-b pb-1">Pencetak Gol (Goal Scorers)</h4>
+                                <div id="sum-scorers-list" class="text-xs space-y-1.5 text-slate-700">Belum ada pencetak gol tercatat.</div>
+                            </div>
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-slate-800 text-sm border-b pb-1">Kartu (Yellow & Red Cards)</h4>
+                                <div id="sum-cards-list" class="text-xs space-y-1.5 text-slate-700">Belum ada kartu tercatat.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: VERIFIKASI PEMAIN -->
+                <div id="tab-verifikasi" class="tab-content hidden space-y-6">
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-white"><i class="fa-solid fa-user-check text-emerald-400 mr-2"></i> Verifikasi Data Pemain</h4>
+                                <p class="text-xs text-slate-400">Admin memverifikasi pemain.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="verifikasiMassal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold">Verifikasi Terpilih</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[700px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700 bg-slate-900/50 text-xs uppercase tracking-wider text-slate-400">
+                                        <th class="p-3 text-center w-10"><input type="checkbox" id="select-all-verif" onclick="toggleSelectAllVerif(this)"></th>
+                                        <th class="p-3">Pemain</th>
+                                        <th class="p-3">Tim</th>
+                                        <th class="p-3">Usia & NIK</th>
+                                        <th class="p-3">Status Saat Ini</th>
+                                        <th class="p-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-verifikasi-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: ADMIN PANEL -->
+                <div id="tab-admin" class="tab-content hidden space-y-6">
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 sm:p-6 rounded-2xl space-y-6">
+                        <div>
+                            <h4 class="text-base sm:text-lg font-bold text-white mb-1"><i class="fa-solid fa-shield-halved text-amber-400 mr-2"></i> Panel Admin: Kelola Tim & Sahrikapi Cloud</h4>
+                            <p class="text-xs text-slate-400">Admin mengelola tim, sandi, dan mengirim email akses ke gmail terdaftar.</p>
+                        </div>
+                        
+                        <!-- Form Daftarkan Tim Baru -->
+                        <form onsubmit="handleTambahTimBaru(event)" class="bg-slate-900 p-4 rounded-2xl border border-slate-700 space-y-3">
+                            <h5 class="text-xs font-bold uppercase text-brand-400">Daftarkan Tim Baru (User Tim)</h5>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <input type="text" id="new-team-name" required placeholder="Nama Tim Baru..." class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                <input type="password" id="new-team-pass" required placeholder="Password Akses..." class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                <input type="email" id="new-team-email" required placeholder="Email Tim..." class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Daftarkan Tim Baru</button>
+                        </form>
+
+                        <!-- Form Buat Kompetisi -->
+                        <form onsubmit="handleAdminBuatKompetisi(event)" class="bg-slate-900 p-4 rounded-2xl border border-slate-700 space-y-3">
+                            <input type="hidden" id="admin-komp-edit-id">
+                            <h5 class="text-xs font-bold uppercase text-amber-400">Buat / Kelola Nama Kompetisi</h5>
+                            <div class="space-y-2">
+                                <input type="text" id="admin-komp-nama" required placeholder="Nama Kompetisi..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] uppercase text-slate-400 mb-1.5 font-semibold">Pilih Kelompok Usia</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-200 bg-slate-800 p-3 rounded-xl border border-slate-700">
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="Usia Dini" class="rounded border-slate-700 text-brand-600"> Usia Dini</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U8" class="rounded border-slate-700 text-brand-600"> U8</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U9" class="rounded border-slate-700 text-brand-600"> U9</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U10" class="rounded border-slate-700 text-brand-600"> U10</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U11" class="rounded border-slate-700 text-brand-600"> U11</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U12" class="rounded border-slate-700 text-brand-600"> U12</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U13" class="rounded border-slate-700 text-brand-600"> U13</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U14" class="rounded border-slate-700 text-brand-600"> U14</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U15" class="rounded border-slate-700 text-brand-600"> U15</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U16" class="rounded border-slate-700 text-brand-600"> U16</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U17" class="rounded border-slate-700 text-brand-600"> U17</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U18" class="rounded border-slate-700 text-brand-600"> U18</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="U19" class="rounded border-slate-700 text-brand-600"> U19</label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="admin_usia_chk" value="SENIOR" class="rounded border-slate-700 text-brand-600"> Senior</label>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Simpan Kompetisi</button>
+                                <button type="button" onclick="resetAdminKompForm()" class="bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs">Reset</button>
+                            </div>
+                        </form>
+
+                        <!-- List Kompetisi -->
+                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 space-y-3">
+                            <h5 class="text-xs font-bold uppercase text-amber-400">Daftar Kompetisi Aktif</h5>
+                            <div id="admin-list-master-komp" class="space-y-2 text-xs"></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2" id="admin-passwords-container"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Input Skor -->
+    <div id="modal-input-skor" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-800 border border-slate-700 max-w-2xl w-full rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-white">Input Hasil Pertandingan, Gol & Kartu</h3>
+                <button onclick="closeInputSkorModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-input-skor" onsubmit="saveInputSkor(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="lbl-tim1" class="block text-xs font-semibold text-slate-300 mb-1">Skor Tim 1</label>
+                        <input type="number" id="inp-score1" required min="0" value="0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white">
+                    </div>
+                    <div>
+                        <label id="lbl-tim2" class="block text-xs font-semibold text-slate-300 mb-1">Skor Tim 2</label>
+                        <input type="number" id="inp-score2" required min="0" value="0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Statistik Pemain</label>
+                    <div id="scorer-inputs-container" class="space-y-2 bg-slate-900 p-3 rounded-xl border border-slate-700 max-h-64 overflow-y-auto text-xs"></div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeInputSkorModal()" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-xl text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold">Simpan Hasil & Statistik</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pemain Modal -->
+    <div id="modal-pemain" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-800 border border-slate-700 max-w-lg w-full rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 id="pemain-modal-title" class="font-bold text-white">Tambah Data Pemain</h3>
+                <button onclick="closePemainModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-pemain" onsubmit="savePemain(event)" class="space-y-3.5">
+                <input type="hidden" id="p-edit-id">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nama Lengkap <span class="text-rose-400">*</span></label>
+                    <input type="text" id="p-nama" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm" placeholder="Nama lengkap pemain">
+                </div>
+                <div id="p-team-wrapper" class="hidden">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Pindah Tim (Khusus Admin)</label>
+                    <select id="p-team-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm"></select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tempat Lahir <span class="text-rose-400">*</span></label>
+                        <input type="text" id="p-tempat-lahir" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm" placeholder="Kota kelahiran">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tanggal Lahir <span class="text-rose-400">*</span></label>
+                        <input type="date" id="p-tgl-lahir" required onchange="hitungKelompokUsia()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Kelompok Usia (Otomatis)</label>
+                    <input type="text" id="p-usia" readonly class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3.5 py-2.5 text-brand-400 font-bold text-sm" value="U17">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">NIK <span class="text-rose-400">*</span></label>
+                    <input type="text" id="p-nik" required placeholder="3271xxxxxxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">No Punggung <span class="text-rose-400">*</span></label>
+                        <input type="number" id="p-nomor" required min="1" max="99" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Posisi <span class="text-rose-400">*</span></label>
+                        <select id="p-posisi" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            <option value="" disabled selected>-- Pilih Posisi --</option>
+                            <option value="Kiper">Kiper (GK)</option>
+                            <option value="Bek">Bek (DF)</option>
+                            <option value="Gelandang">Gelandang (MF)</option>
+                            <option value="Penyerang">Penyerang (FW)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Alamat Lengkap <span class="text-rose-400">*</span></label>
+                    <textarea id="p-alamat" rows="2" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm" placeholder="Alamat lengkap pemain..."></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Upload Foto Pemain (Sahrikapi Cloud) <span class="text-rose-400">*</span></label>
+                        <input type="file" id="p-foto-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Upload Dokumen KIA/Raport <span class="text-rose-400">*</span></label>
+                        <input type="file" id="p-dokumen-file" accept="image/*,.pdf" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closePemainModal()" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-xl text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold">Simpan Pemain</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Official Modal -->
+    <div id="modal-official" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-800 border border-slate-700 max-w-lg w-full rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 id="official-modal-title" class="font-bold text-white">Kelola Data Official</h3>
+                <button onclick="closeOfficialModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-official" onsubmit="saveOfficial(event)" class="space-y-3.5">
+                <input type="hidden" id="o-edit-id">
+                <div id="o-team-wrapper" class="hidden">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Ganti Tim Official (Khusus Admin)</label>
+                    <select id="o-team-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nama Lengkap & Gelar</label>
+                    <input type="text" id="o-nama" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Jabatan Resmi</label>
+                        <select id="o-jabatan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            <option value="Pelatih Kepala">Pelatih Kepala (Head Coach)</option>
+                            <option value="Asisten Pelatih">Asisten Pelatih</option>
+                            <option value="Pelatih Kiper">Pelatih Kiper</option>
+                            <option value="Manajer Tim">Manajer Tim</option>
+                            <option value="Official Medis">Official Medis</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Kelompok Usia</label>
+                        <select id="o-usia" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                            <option value="Usia Dini">Usia Dini</option>
+                            <option value="U8">U8</option>
+                            <option value="U9">U9</option>
+                            <option value="U10">U10</option>
+                            <option value="U11">U11</option>
+                            <option value="U12">U12</option>
+                            <option value="U13">U13</option>
+                            <option value="U14">U14</option>
+                            <option value="U15">U15</option>
+                            <option value="U16">U16</option>
+                            <option value="U17" selected>U17</option>
+                            <option value="U18">U18</option>
+                            <option value="U19">U19</option>
+                            <option value="SENIOR">Senior</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">No Kontak / HP</label>
+                        <input type="text" id="o-kontak" required placeholder="0812xxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Lisensi Kepelatihan</label>
+                        <input type="text" id="o-lisensi" placeholder="Lisensi B AFC" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Upload Foto Official (Sahrikapi Cloud)</label>
+                    <input type="file" id="o-foto-file" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeOfficialModal()" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-xl text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold">Simpan Official</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kompetisi Modal -->
+    <div id="modal-kompetisi" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-800 border border-slate-700 max-w-lg w-full rounded-3xl p-6 shadow-2xl space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-white">Pilih Kompetisi & Daftarkan Nama Tim/Skuad</h3>
+                <button onclick="closeKompetisiModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-kompetisi" onsubmit="saveKompetisi(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Pilih Kompetisi Tersedia</label>
+                    <select id="k-kompetisi-select" required onchange="handlePilihKompetisiList()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                        <option value="" disabled selected>-- Pilih Kompetisi --</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Pilih Kelompok Usia</label>
+                        <select id="k-usia-select" required onchange="handlePilihKompetisiList()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm font-bold text-brand-400">
+                            <option value="" disabled selected>-- Pilih Usia --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nama Tim / Skuad</label>
+                        <input type="text" id="k-namatim-input" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm font-semibold" placeholder="Cth: Asskar A / Asskar B">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Pilih Pemain Skuad (Centang)</label>
+                    <div id="k-pemain-checkboxes" class="max-h-48 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl p-3 space-y-2 text-xs"></div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeKompetisiModal()" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-xl text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold">Simpan Pendaftaran & Skuad</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Jadwal Modal -->
+    <div id="modal-jadwal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 id="jadwal-modal-title" class="font-bold text-white">Kelola Jadwal Pertandingan</h3>
+                <button onclick="closeJadwalModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-jadwal" onsubmit="saveJadwal(event)" class="space-y-3.5">
+                <input type="hidden" id="j-edit-id">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Kelompok Usia</label>
+                    <select id="j-usia" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                        <option value="Usia Dini">Usia Dini</option>
+                        <option value="U8">U8</option>
+                        <option value="U9">U9</option>
+                        <option value="U10">U10</option>
+                        <option value="U11">U11</option>
+                        <option value="U12">U12</option>
+                        <option value="U13">U13</option>
+                        <option value="U14">U14</option>
+                        <option value="U15">U15</option>
+                        <option value="U16">U16</option>
+                        <option value="U17" selected>U17</option>
+                        <option value="U18">U18</option>
+                        <option value="U19">U19</option>
+                        <option value="SENIOR">Senior</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tanggal</label>
+                        <input type="date" id="j-tgl" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Waktu</label>
+                        <input type="time" id="j-waktu" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tim 1</label>
+                        <input type="text" id="j-tim1" required placeholder="Nama Tim 1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tim 2</label>
+                        <input type="text" id="j-tim2" required placeholder="Nama Tim 2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Lokasi / Lapangan</label>
+                    <input type="text" id="j-lokasi" required placeholder="Stadion Singaperbangsa" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeJadwalModal()" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-xl text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Utama dengan Cloud Sahrikapi Storage & Kredensial Admin ASSKAR KRW -->
+    <script>
+        let currentUserTeam = null;
+
+        const defaultCloudData = {
+            teams: ["Garuda Karawang", "Persika Muda", "Merpati FC"],
+            passwords: { "ASSKAR KRW": "Admin123", "Garuda Karawang": "123", "Persika Muda": "123", "Merpati FC": "123" },
+            profil: {
+                "Garuda Karawang": { nama: "Garuda Karawang", email: "sahrikapi@gmail.com", tahun: 2024, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "Bapak H. Andi", telepon: "081234567890", alamat: "Jl. Galuh Mas Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" },
+                "Persika Muda": { nama: "Persika Muda", email: "sahrikapi@gmail.com", tahun: 2023, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "Bapak Rahmat", telepon: "081298765432", alamat: "Jl. Interchange Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" },
+                "Merpati FC": { nama: "Merpati FC", email: "sahrikapi@gmail.com", tahun: 2025, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "Bapak Dedi", telepon: "081311223344", alamat: "Jl. Kosambi Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" }
+            },
+            pemain: [
+                { id: "p_1", team: "Garuda Karawang", usia: "U17", nama: "Rizky Ramadhan", tempatLahir: "Karawang", tglLahir: "2009-05-12", nik: "3215011205090001", nomor: 10, posisi: "Penyerang", alamat: "Telukjambe Karawang", foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150", dokumen: "#", verified: true },
+                { id: "p_2", team: "Persika Muda", usia: "U17", nama: "Ahmad Fauzi", tempatLahir: "Karawang", tglLahir: "2009-08-20", nik: "3215012008090002", nomor: 7, posisi: "Gelandang", alamat: "Klari Karawang", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", dokumen: "#", verified: true }
+            ],
+            official: [
+                { id: "o_1", team: "Garuda Karawang", nama: "Coach Budi", jabatan: "Pelatih Kepala", usia: "U17", kontak: "08111222333", lisensi: "Lisensi B AFC", foto: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150" }
+            ],
+            masterKompetisi: [
+                { id: "mk_1", nama: "Liga Pelajar Karawang 2026", usias: ["U15", "U17", "SENIOR"] }
+            ],
+            kompetisi: [
+                { id: "komp_1", team: "Garuda Karawang", originalTeam: "Garuda Karawang", namaKompetisi: "Liga Pelajar Karawang 2026", usia: "U17", pemainIds: ["p_1"] }
+            ],
+            jadwal: [
+                { id: "JDW-1", usia: "U17", tgl: "2026-11-01", waktu: "15:30", tim1: "Garuda Karawang", tim2: "Persika Muda", lokasi: "Stadion Singaperbangsa Karawang" }
+            ],
+            klasemen: {
+                'Usia Dini': [], 'U8': [], 'U9': [], 'U10': [], 'U11': [], 'U12': [], 'U13': [], 'U14': [], 'U15': [], 'U16': [],
+                'U17': [
+                    { tim: "Garuda Karawang", main: 1, menang: 1, seri: 0, kalah: 0, selisih: 2, poin: 3 },
+                    { tim: "Persika Muda", main: 1, menang: 0, seri: 0, kalah: 1, selisih: -2, poin: 0 }
+                ],
+                'U18': [], 'U19': [], 'SENIOR': []
+            },
+            summary: {}
+        };
+
+        window.cloudData = JSON.parse(localStorage.getItem('asskar_sahrikapi_cloud_v3')) || defaultCloudData;
+        if (!window.cloudData.passwords["ASSKAR KRW"]) {
+            window.cloudData.passwords["ASSKAR KRW"] = "Admin123";
+        }
+
+        window.saveToLocalStorage = function() {
+            localStorage.setItem('asskar_sahrikapi_cloud_v3', JSON.stringify(window.cloudData));
+        };
+
+        window.uploadToSahrikapiCloud = async function(fileInput, callback) {
+            if (!fileInput.files || !fileInput.files[0]) {
+                callback(null);
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 500;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                    } else {
+                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const optimizedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                    callback(optimizedBase64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.showModal = function(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        };
+        window.closeModal = function() { document.getElementById('custom-modal').classList.add('hidden'); };
+        window.toggleMobileMenu = function() { document.getElementById('sidebar-drawer').classList.toggle('-translate-x-full'); };
+
+        window.populateTeamDropdowns = function() {
+            const pSel = document.getElementById('p-team-select');
+            if (pSel) {
+                pSel.innerHTML = '';
+                window.cloudData.teams.forEach(t => { pSel.innerHTML += `<option value="${t}">${t}</option>`; });
+            }
+            const oSel = document.getElementById('o-team-select');
+            if (oSel) {
+                oSel.innerHTML = '';
+                window.cloudData.teams.forEach(t => { oSel.innerHTML += `<option value="${t}">${t}</option>`; });
+            }
+        };
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const inputTeam = document.getElementById('login-team').value.trim();
+            const pass = document.getElementById('login-pass').value;
+
+            let matchedTeam = null;
+            if (inputTeam.toUpperCase() === 'ASSKAR KRW') {
+                matchedTeam = 'ASSKAR KRW';
+            } else {
+                matchedTeam = window.cloudData.teams.find(t => t.toLowerCase() === inputTeam.toLowerCase());
+            }
+
+            if (!matchedTeam) {
+                return showModal('Akses Ditolak', 'Username belum terdaftar di sistem!');
+            }
+
+            const correctPass = window.cloudData.passwords[matchedTeam] || '123';
+            if (pass !== correctPass) {
+                return showModal('Gagal Masuk', 'Kata sandi salah!');
+            }
+
+            currentUserTeam = matchedTeam;
+            const isAdmin = matchedTeam === 'ASSKAR KRW';
+            document.getElementById('current-team-title').innerText = isAdmin ? 'Administrator' : matchedTeam;
+            document.getElementById('mobile-team-title').innerText = isAdmin ? 'Administrator' : matchedTeam;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+
+            if (isAdmin) {
+                document.getElementById('nav-admin-btn').classList.remove('hidden');
+                document.getElementById('nav-verifikasi-btn').classList.remove('hidden');
+                document.getElementById('btn-tambah-jadwal-manual').classList.remove('hidden');
+                document.getElementById('btn-print-summary').classList.remove('hidden');
+                document.getElementById('btn-input-skor').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-admin-btn').classList.add('hidden');
+                document.getElementById('nav-verifikasi-btn').classList.add('hidden');
+                document.getElementById('btn-tambah-jadwal-manual').classList.add('hidden');
+                document.getElementById('btn-print-summary').classList.add('hidden');
+                document.getElementById('btn-input-skor').classList.add('hidden');
+            }
+
+            if (!isAdmin && window.cloudData.profil[matchedTeam] && window.cloudData.profil[matchedTeam].logo) {
+                const lg = window.cloudData.profil[matchedTeam].logo;
+                document.getElementById('sidebar-nav-logo').src = lg;
+                document.getElementById('mobile-nav-logo').src = lg;
+            }
+
+            initApp();
+        };
+
+        window.handleLogout = function() {
+            currentUserTeam = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        };
+
+        window.initApp = function() {
+            populateTeamDropdowns();
+            renderDashboardStats();
+            renderProfilTim();
+            renderPemain();
+            renderOfficial();
+            renderKompetisi();
+            renderIDCards();
+            renderJadwal();
+            populateKlasemenKompetisiDropdown();
+            renderKlasemen();
+            renderTopScorer();
+            renderDSP();
+            populateJadwalDropdowns();
+            renderVerifikasiPemain();
+            renderAdminPasswords();
+            renderAdminMasterKompetisi();
+            switchTab('dashboard');
+        };
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('bg-brand-600', 'text-white'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            if (activeBtn) activeBtn.classList.add('bg-brand-600', 'text-white');
+            if (window.innerWidth < 768) document.getElementById('sidebar-drawer').classList.add('-translate-x-full');
+            
+            if (tabId === 'profil') renderProfilTim();
+            if (tabId === 'pemain') renderPemain();
+            if (tabId === 'official') renderOfficial();
+            if (tabId === 'kompetisi') renderKompetisi();
+            if (tabId === 'idcard') renderIDCards();
+            if (tabId === 'dsp') renderDSP();
+            if (tabId === 'summary') renderSummary();
+            if (tabId === 'verifikasi') renderVerifikasiPemain();
+            if (tabId === 'admin') { renderAdminPasswords(); renderAdminMasterKompetisi(); }
+            if (tabId === 'hasil') { populateKlasemenKompetisiDropdown(); renderKlasemen(); }
+        };
+
+        window.renderDashboardStats = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const myPemain = isAdmin ? window.cloudData.pemain : window.cloudData.pemain.filter(p => p.team === currentUserTeam);
+            document.getElementById('stat-total-pemain').innerText = myPemain.length;
+            document.getElementById('stat-total-jadwal').innerText = window.cloudData.jadwal.length;
+            
+            let myPoin = 0;
+            if (!isAdmin) {
+                const kList = window.cloudData.klasemen['U17'] || [];
+                const k = kList.find(x => x.tim === currentUserTeam);
+                if (k) myPoin = k.poin;
+            }
+            document.getElementById('stat-total-poin').innerText = myPoin;
+            renderTopScorer();
+        };
+
+        window.hitungKelompokUsia = function() {
+            const tglLahir = document.getElementById('p-tgl-lahir').value;
+            if (!tglLahir) return;
+            const tahunLahir = new Date(tglLahir).getFullYear();
+            const tahunSekarang = 2026;
+            const usia = tahunSekarang - tahunLahir;
+
+            let kat = 'SENIOR';
+            if (usia <= 8) kat = 'U8';
+            else if (usia === 9) kat = 'U9';
+            else if (usia === 10) kat = 'U10';
+            else if (usia === 11) kat = 'U11';
+            else if (usia === 12) kat = 'U12';
+            else if (usia === 13) kat = 'U13';
+            else if (usia === 14) kat = 'U14';
+            else if (usia === 15) kat = 'U15';
+            else if (usia === 16) kat = 'U16';
+            else if (usia === 17) kat = 'U17';
+            else if (usia === 18) kat = 'U18';
+            else if (usia === 19) kat = 'U19';
+            else if (usia < 8) kat = 'Usia Dini';
+
+            document.getElementById('p-usia').value = kat;
+        };
+
+        window.renderProfilTim = function() {
+            const adminSelector = document.getElementById('profil-admin-selector');
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (isAdmin) {
+                adminSelector.classList.remove('hidden');
+                adminSelector.innerHTML = '';
+                window.cloudData.teams.forEach(t => {
+                    adminSelector.innerHTML += `<option value="${t}">${t}</option>`;
+                });
+            } else {
+                adminSelector.classList.add('hidden');
+            }
+
+            const activeTeam = isAdmin ? (adminSelector.value || window.cloudData.teams[0] || 'Tim Kosong') : currentUserTeam;
+            if (!window.cloudData.profil[activeTeam]) {
+                window.cloudData.profil[activeTeam] = { nama: activeTeam, email: "sahrikapi@gmail.com", tahun: 2026, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "", telepon: "", alamat: "", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" };
+            }
+            const prof = window.cloudData.profil[activeTeam];
+            document.getElementById('prof-nama').value = prof.nama;
+            document.getElementById('prof-email').value = prof.email || "";
+            document.getElementById('prof-tahun').value = prof.tahun;
+            document.getElementById('prof-legalitas').value = prof.legalitas;
+            document.getElementById('prof-pemilik').value = prof.pemilik;
+            document.getElementById('prof-telepon').value = prof.telepon;
+            document.getElementById('prof-alamat').value = prof.alamat;
+            document.getElementById('prof-logo-url').value = prof.logo;
+            document.getElementById('prof-logo-preview').src = prof.logo;
+            document.getElementById('prof-legal-url').value = prof.legalFile;
+            toggleLegalitasFile();
+        };
+
+        window.switchProfilTeam = function(teamName) { renderProfilTim(); };
+
+        window.toggleLegalitasFile = function() {
+            const leg = document.getElementById('prof-legalitas').value;
+            const wrap = document.getElementById('prof-legalfile-wrapper');
+            if (leg === 'Berbadan Hukum') wrap.classList.remove('hidden');
+            else wrap.classList.add('hidden');
+        };
+
+        window.saveProfilTim = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const activeTeam = isAdmin ? document.getElementById('profil-admin-selector').value : currentUserTeam;
+            const logoFile = document.getElementById('prof-logo-file');
+            const legalFile = document.getElementById('prof-legal-file');
+
+            let logoUrl = document.getElementById('prof-logo-url').value;
+            let legalUrl = document.getElementById('prof-legal-url').value;
+
+            const executeSave = () => {
+                window.cloudData.profil[activeTeam] = {
+                    nama: activeTeam,
+                    email: document.getElementById('prof-email').value,
+                    tahun: parseInt(document.getElementById('prof-tahun').value) || 2026,
+                    legalitas: document.getElementById('prof-legalitas').value,
+                    legalFile: legalUrl,
+                    pemilik: document.getElementById('prof-pemilik').value,
+                    telepon: document.getElementById('prof-telepon').value,
+                    alamat: document.getElementById('prof-alamat').value,
+                    logo: logoUrl
+                };
+                window.saveToLocalStorage();
+                showModal('Berhasil', 'Profil tim & Sahrikapi Cloud Storage berhasil disimpan.');
+                renderProfilTim();
+            };
+
+            if (logoFile.files && logoFile.files[0]) {
+                uploadToSahrikapiCloud(logoFile, (optLogo) => {
+                    if (optLogo) logoUrl = optLogo;
+                    if (legalFile.files && legalFile.files[0]) {
+                        uploadToSahrikapiCloud(legalFile, (optLeg) => {
+                            if (optLeg) legalUrl = optLeg;
+                            executeSave();
+                        });
+                    } else { executeSave(); }
+                });
+            } else {
+                if (legalFile.files && legalFile.files[0]) {
+                    uploadToSahrikapiCloud(legalFile, (optLeg) => {
+                        if (optLeg) legalUrl = optLeg;
+                        executeSave();
+                    });
+                } else { executeSave(); }
+            }
+        };
+
+        window.renderPemain = function() {
+            const tbody = document.getElementById('table-pemain-body');
+            tbody.innerHTML = '';
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const myPemain = isAdmin ? window.cloudData.pemain : window.cloudData.pemain.filter(p => p.team === currentUserTeam);
+            
+            if (myPemain.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada data pemain. Silakan tambahkan pemain.</td></tr>`;
+                return;
+            }
+
+            myPemain.forEach((p) => {
+                let badge = p.verified ? `<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs font-bold">Terverifikasi</span>` : `<span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold">Pending</span>`;
+                
+                let actionBtns = '';
+                if (isAdmin) {
+                    actionBtns = `
+                        <button onclick="editPemain('${p.id}')" class="text-amber-400 hover:text-amber-300 p-2" title="Edit Pemain"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deletePemain('${p.id}')" class="text-rose-400 hover:text-rose-300 p-2" title="Hapus Pemain"><i class="fa-solid fa-trash"></i></button>
+                    `;
+                } else {
+                    if (!p.verified) {
+                        actionBtns = `<button onclick="editPemain('${p.id}')" class="text-amber-400 hover:text-amber-300 p-2" title="Edit Pemain"><i class="fa-solid fa-pen"></i></button>`;
+                    } else {
+                        actionBtns = `<span class="text-[10px] text-slate-500 italic">Terkunci (Terverifikasi)</span>`;
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-4 flex items-center space-x-3">
+                            <img src="${p.foto}" class="w-10 h-10 rounded-full object-cover">
+                            <div><div class="font-bold text-white">${p.nama}</div><div class="text-xs text-brand-400">#${p.nomor} • ${p.posisi}</div></div>
+                        </td>
+                        <td class="p-4 font-semibold text-xs text-slate-300">${p.team}</td>
+                        <td class="p-4"><span class="bg-brand-500/15 text-brand-400 px-2.5 py-1 rounded-lg text-xs font-bold">${p.usia}</span></td>
+                        <td class="p-4 text-xs">${p.tempatLahir}, ${p.tglLahir}<br><span class="font-mono text-slate-400">NIK: ${p.nik}</span></td>
+                        <td class="p-4">${badge}</td>
+                        <td class="p-4 text-center space-x-1">${actionBtns}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.openPemainModal = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (isAdmin) return showModal('Akses Ditolak', 'Penambahan pemain khusus dilakukan oleh tim masing-masing.');
+            document.getElementById('form-pemain').reset();
+            document.getElementById('p-edit-id').value = '';
+            document.getElementById('p-team-wrapper').classList.add('hidden');
+            document.getElementById('modal-pemain').classList.remove('hidden');
+        };
+
+        window.editPemain = function(id) {
+            const p = window.cloudData.pemain.find(x => x.id === id);
+            if (!p) return;
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin && p.verified) return showModal('Akses Ditolak', 'Pemain yang sudah terverifikasi tidak dapat diubah oleh tim.');
+
+            document.getElementById('p-edit-id').value = p.id;
+            document.getElementById('p-nama').value = p.nama;
+            document.getElementById('p-tempat-lahir').value = p.tempatLahir;
+            document.getElementById('p-tgl-lahir').value = p.tglLahir;
+            document.getElementById('p-usia').value = p.usia;
+            document.getElementById('p-nik').value = p.nik;
+            document.getElementById('p-nomor').value = p.nomor;
+            document.getElementById('p-posisi').value = p.posisi;
+            document.getElementById('p-alamat').value = p.alamat;
+
+            const pTeamWrapper = document.getElementById('p-team-wrapper');
+            if (isAdmin) {
+                pTeamWrapper.classList.remove('hidden');
+                const pSel = document.getElementById('p-team-select');
+                pSel.innerHTML = '';
+                window.cloudData.teams.forEach(t => {
+                    pSel.innerHTML += `<option value="${t}" ${t === p.team ? 'selected' : ''}>${t}</option>`;
+                });
+            } else {
+                pTeamWrapper.classList.add('hidden');
+            }
+
+            document.getElementById('modal-pemain').classList.remove('hidden');
+        };
+
+        window.closePemainModal = function() { document.getElementById('modal-pemain').classList.add('hidden'); };
+
+        window.savePemain = function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('p-edit-id').value;
+            const nama = document.getElementById('p-nama').value.trim();
+            const tempatLahir = document.getElementById('p-tempat-lahir').value.trim();
+            const tglLahir = document.getElementById('p-tgl-lahir').value;
+            const nik = document.getElementById('p-nik').value.trim();
+            const nomor = document.getElementById('p-nomor').value;
+            const posisi = document.getElementById('p-posisi').value;
+            const alamat = document.getElementById('p-alamat').value.trim();
+            const fotoInput = document.getElementById('p-foto-file');
+            const dokInput = document.getElementById('p-dokumen-file');
+
+            if (!nama || !tempatLahir || !tglLahir || !nik || !nomor || !posisi || !alamat) {
+                return showModal('Form Belum Lengkap', 'Semua field wajib diisi!');
+            }
+
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const team = isAdmin ? document.getElementById('p-team-select').value : currentUserTeam;
+
+            const commitPemain = (fotoData, dokData) => {
+                if (editId) {
+                    let p = window.cloudData.pemain.find(x => x.id === editId);
+                    if (p) {
+                        p.nama = nama;
+                        p.tempatLahir = tempatLahir;
+                        p.tglLahir = tglLahir;
+                        p.usia = document.getElementById('p-usia').value;
+                        p.nik = nik;
+                        p.nomor = parseInt(nomor) || 1;
+                        p.posisi = posisi;
+                        p.alamat = alamat;
+                        if (fotoData) p.foto = fotoData;
+                        if (dokData) p.dokumen = dokData;
+                        if (isAdmin) p.team = team;
+                    }
+                } else {
+                    if (isAdmin) return showModal('Akses Ditolak', 'Admin tidak dapat menambah pemain.');
+                    if (!fotoInput.files[0] || !dokInput.files[0]) {
+                        return showModal('File Belum Diunggah', 'Foto pemain dan dokumen KIA/Raport wajib diunggah!');
+                    }
+
+                    window.cloudData.pemain.push({
+                        id: 'p_' + Date.now(),
+                        team: currentUserTeam,
+                        usia: document.getElementById('p-usia').value,
+                        nama: nama,
+                        tempatLahir: tempatLahir,
+                        tglLahir: tglLahir,
+                        nik: nik,
+                        nomor: parseInt(nomor) || 1,
+                        posisi: posisi,
+                        alamat: alamat,
+                        foto: fotoData,
+                        dokumen: dokData,
+                        verified: false
+                    });
+                }
+
+                window.saveToLocalStorage();
+                closePemainModal();
+                renderPemain();
+                renderDashboardStats();
+                showModal('Berhasil', 'Data pemain & Sahrikapi Cloud Storage berhasil disimpan.');
+            };
+
+            if (fotoInput.files[0]) {
+                uploadToSahrikapiCloud(fotoInput, (optFoto) => {
+                    let finalFoto = optFoto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
+                    if (dokInput.files[0]) {
+                        uploadToSahrikapiCloud(dokInput, (optDok) => {
+                            let finalDok = optDok || '#';
+                            commitPemain(finalFoto, finalDok);
+                        });
+                    } else {
+                        let existingDok = editId ? window.cloudData.pemain.find(x => x.id === editId).dokumen : '#';
+                        commitPemain(finalFoto, existingDok);
+                    }
+                });
+            } else {
+                let existingP = editId ? window.cloudData.pemain.find(x => x.id === editId) : null;
+                let fData = existingP ? existingP.foto : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
+                let dData = existingP ? existingP.dokumen : '#';
+                commitPemain(fData, dData);
+            }
+        };
+
+        window.deletePemain = function(id) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Penghapusan pemain hanya dapat dilakukan oleh Admin.');
+            window.cloudData.pemain = window.cloudData.pemain.filter(p => p.id !== id);
+            window.saveToLocalStorage();
+            renderPemain();
+            renderDashboardStats();
+            showModal('Terhapus', 'Data pemain berhasil dihapus.');
+        };
+
+        window.renderOfficial = function() {
+            const tbody = document.getElementById('table-official-body');
+            tbody.innerHTML = '';
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const myOfficial = isAdmin ? window.cloudData.official : window.cloudData.official.filter(o => o.team === currentUserTeam);
+            
+            if (myOfficial.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Belum ada official.</td></tr>`;
+                return;
+            }
+
+            myOfficial.forEach((o) => {
+                let actionBtns = '';
+                if (isAdmin) {
+                    actionBtns = `
+                        <button onclick="editOfficial('${o.id}')" class="text-amber-400 hover:text-amber-300 p-2" title="Edit Official"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteOfficial('${o.id}')" class="text-rose-400 hover:text-rose-300 p-2" title="Hapus Official"><i class="fa-solid fa-trash"></i></button>
+                    `;
+                }
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-4 flex items-center space-x-3">
+                            <img src="${o.foto}" class="w-10 h-10 rounded-full object-cover">
+                            <div><div class="font-bold text-white">${o.nama}</div><div class="text-xs text-brand-400">${o.lisensi}</div></div>
+                        </td>
+                        <td class="p-4"><span class="bg-indigo-500/15 text-indigo-400 px-2.5 py-1 rounded-lg text-xs font-bold">${o.jabatan}</span></td>
+                        <td class="p-4 text-xs font-semibold">${o.team}</td>
+                        <td class="p-4 font-mono text-xs">${o.kontak}</td>
+                        <td class="p-4 text-center">${actionBtns}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.openOfficialModal = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (isAdmin) return showModal('Akses Ditolak', 'Penambahan official khusus dilakukan oleh tim masing-masing.');
+            document.getElementById('form-official').reset();
+            document.getElementById('o-edit-id').value = '';
+            document.getElementById('o-team-wrapper').classList.add('hidden');
+            document.getElementById('modal-official').classList.remove('hidden');
+        };
+
+        window.editOfficial = function(id) {
+            const o = window.cloudData.official.find(x => x.id === id);
+            if (!o) return;
+            document.getElementById('o-edit-id').value = o.id;
+            document.getElementById('o-nama').value = o.nama;
+            document.getElementById('o-jabatan').value = o.jabatan;
+            document.getElementById('o-usia').value = o.usia;
+            document.getElementById('o-kontak').value = o.kontak;
+            document.getElementById('o-lisensi').value = o.lisensi;
+
+            const oTeamWrapper = document.getElementById('o-team-wrapper');
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (isAdmin) {
+                oTeamWrapper.classList.remove('hidden');
+                const oSel = document.getElementById('o-team-select');
+                oSel.innerHTML = '';
+                window.cloudData.teams.forEach(t => {
+                    oSel.innerHTML += `<option value="${t}" ${t === o.team ? 'selected' : ''}>${t}</option>`;
+                });
+            } else {
+                oTeamWrapper.classList.add('hidden');
+            }
+
+            document.getElementById('modal-official').classList.remove('hidden');
+        };
+
+        window.closeOfficialModal = function() { document.getElementById('modal-official').classList.add('hidden'); };
+
+        window.saveOfficial = function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('o-edit-id').value;
+            const fotoInput = document.getElementById('o-foto-file');
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const team = isAdmin ? document.getElementById('o-team-select').value : currentUserTeam;
+
+            const commitOfficial = (imgData) => {
+                if (editId) {
+                    let o = window.cloudData.official.find(x => x.id === editId);
+                    if (o) {
+                        o.nama = document.getElementById('o-nama').value;
+                        o.jabatan = document.getElementById('o-jabatan').value;
+                        o.usia = document.getElementById('o-usia').value;
+                        o.kontak = document.getElementById('o-kontak').value;
+                        o.lisensi = document.getElementById('o-lisensi').value;
+                        if (imgData) o.foto = imgData;
+                        if (isAdmin) o.team = team;
+                    }
+                } else {
+                    if (isAdmin) return showModal('Akses Ditolak', 'Admin tidak dapat menambah official.');
+                    window.cloudData.official.push({
+                        id: 'o_' + Date.now(),
+                        team: currentUserTeam,
+                        nama: document.getElementById('o-nama').value,
+                        jabatan: document.getElementById('o-jabatan').value,
+                        usia: document.getElementById('o-usia').value,
+                        kontak: document.getElementById('o-kontak').value,
+                        lisensi: document.getElementById('o-lisensi').value,
+                        foto: imgData
+                    });
+                }
+                window.saveToLocalStorage();
+                closeOfficialModal();
+                renderOfficial();
+                showModal('Berhasil', 'Data official & Sahrikapi Cloud berhasil disimpan.');
+            };
+
+            if (fotoInput.files[0]) {
+                uploadToSahrikapiCloud(fotoInput, (opt) => {
+                    commitOfficial(opt || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150');
+                });
+            } else {
+                let existingO = editId ? window.cloudData.official.find(x => x.id === editId) : null;
+                commitOfficial(existingO ? existingO.foto : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150');
+            }
+        };
+
+        window.deleteOfficial = function(id) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menghapus data official.');
+            window.cloudData.official = window.cloudData.official.filter(o => o.id !== id);
+            window.saveToLocalStorage();
+            renderOfficial();
+        };
+
+        window.renderKompetisi = function() {
+            const container = document.getElementById('list-kompetisi-container');
+            container.innerHTML = '';
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const myKomp = isAdmin ? window.cloudData.kompetisi : window.cloudData.kompetisi.filter(k => k.team === currentUserTeam);
+
+            if (myKomp.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-slate-800/40 rounded-2xl">Belum ada pendaftaran kompetisi. Tim dapat memilih kompetisi yang dibuat admin.</div>`;
+                return;
+            }
+
+            myKomp.forEach(k => {
+                let pemains = window.cloudData.pemain.filter(p => k.pemainIds.includes(p.id));
+                let pListHtml = pemains.map(p => `<span class="bg-slate-900 px-2 py-1 rounded text-xs text-white">#${p.nomor} ${p.nama}</span>`).join('');
+                
+                let deleteBtn = isAdmin ? `<button onclick="deleteKompetisi('${k.id}')" class="text-xs bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 px-3 py-1.5 rounded-lg font-semibold"><i class="fa-solid fa-trash mr-1"></i> Hapus Skuad</button>` : '';
+
+                container.innerHTML += `
+                    <div class="bg-slate-800/70 border border-slate-700/50 p-5 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-white text-base">${k.namaKompetisi}</h4>
+                            <span class="bg-brand-500/20 text-brand-400 px-2.5 py-1 rounded text-xs font-bold">${k.usia}</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Nama Skuad/Tim: <strong class="text-white">${k.team}</strong></p>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-300 mb-1.5">Skuad Terdaftar (${pemains.length} Pemain):</p>
+                            <div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">${pListHtml || '<span class="text-slate-500 text-xs">Belum ada pemain dipilih</span>'}</div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-700/60 flex justify-end">
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.deleteKompetisi = function(kompId) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menghapus daftar kompetisi dan skuad.');
+            
+            window.cloudData.kompetisi = window.cloudData.kompetisi.filter(k => k.id !== kompId);
+            window.saveToLocalStorage();
+            renderKompetisi();
+            showModal('Terhapus', 'Daftar kompetisi & skuad berhasil dihapus.');
+        };
+
+        window.openKompetisiModal = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (isAdmin) return showModal('Akses Ditolak', 'Admin membuat kompetisi melalui menu Panel Admin.');
+            
+            const sel = document.getElementById('k-kompetisi-select');
+            sel.innerHTML = '<option value="" disabled selected>-- Pilih Kompetisi --</option>';
+            window.cloudData.masterKompetisi.forEach(mk => {
+                sel.innerHTML += `<option value="${mk.id}">${mk.nama}</option>`;
+            });
+
+            document.getElementById('form-kompetisi').reset();
+            document.getElementById('k-usia-select').innerHTML = '<option value="" disabled selected>-- Pilih Usia --</option>';
+            document.getElementById('k-pemain-checkboxes').innerHTML = '<p class="text-slate-500 text-center py-2">Pilih kompetisi dan kelompok usia terlebih dahulu</p>';
+            document.getElementById('modal-kompetisi').classList.remove('hidden');
+        };
+
+        window.closeKompetisiModal = function() { document.getElementById('modal-kompetisi').classList.add('hidden'); };
+
+        window.handlePilihKompetisiList = function() {
+            const kompId = document.getElementById('k-kompetisi-select').value;
+            const mk = window.cloudData.masterKompetisi.find(x => x.id === kompId);
+            if (!mk) return;
+
+            const usiaSel = document.getElementById('k-usia-select');
+            const selectedUsiaVal = usiaSel.value;
+            usiaSel.innerHTML = '<option value="" disabled selected>-- Pilih Usia --</option>';
+            mk.usias.forEach(u => {
+                usiaSel.innerHTML += `<option value="${u}" ${u === selectedUsiaVal ? 'selected' : ''}>${u}</option>`;
+            });
+
+            const chosenUsia = usiaSel.value;
+            const container = document.getElementById('k-pemain-checkboxes');
+            container.innerHTML = '';
+
+            if (!chosenUsia) return;
+
+            const listP = window.cloudData.pemain.filter(p => p.team === currentUserTeam && p.usia === chosenUsia);
+            if (listP.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-center py-2">Anda tidak memiliki pemain dengan kelompok usia ${chosenUsia}</p>`;
+                return;
+            }
+
+            listP.forEach(p => {
+                container.innerHTML += `
+                    <label class="flex items-center space-x-2 text-slate-200 cursor-pointer">
+                        <input type="checkbox" name="komp_pemain" value="${p.id}" class="rounded border-slate-700 text-brand-600 focus:ring-brand-500">
+                        <span>#${p.nomor} - ${p.nama} (${p.posisi})</span>
+                    </label>
+                `;
+            });
+        };
+
+        window.saveKompetisi = function(e) {
+            e.preventDefault();
+            const kompId = document.getElementById('k-kompetisi-select').value;
+            const mk = window.cloudData.masterKompetisi.find(x => x.id === kompId);
+            const usia = document.getElementById('k-usia-select').value;
+            const namaTimSkuad = document.getElementById('k-namatim-input').value.trim();
+
+            if (!mk || !usia || !namaTimSkuad) return showModal('Peringatan', 'Lengkapi semua pilihan kompetisi, kelompok usia, dan nama tim!');
+
+            const checkboxes = document.querySelectorAll('input[name="komp_pemain"]:checked');
+            let pIds = Array.from(checkboxes).map(cb => cb.value);
+
+            const newKomp = {
+                id: 'komp_' + Date.now(),
+                team: namaTimSkuad,
+                originalTeam: currentUserTeam,
+                namaKompetisi: mk.nama,
+                usia: usia,
+                pemainIds: pIds
+            };
+
+            window.cloudData.kompetisi.push(newKomp);
+
+            const otherTeams = window.cloudData.teams.filter(x => x !== currentUserTeam);
+            const randomOpp = otherTeams[Math.floor(Math.random() * otherTeams.length)] || 'Tim Lawan';
+            
+            const newJadwal = {
+                id: 'JDW-' + Date.now(),
+                usia: usia,
+                tgl: '2026-11-01',
+                waktu: '15:30',
+                tim1: namaTimSkuad,
+                tim2: randomOpp,
+                lokasi: 'Stadion Utama Karawang'
+            };
+            window.cloudData.jadwal.push(newJadwal);
+
+            window.saveToLocalStorage();
+            closeKompetisiModal();
+            renderKompetisi();
+            renderJadwal();
+            populateJadwalDropdowns();
+            populateKlasemenKompetisiDropdown();
+            showModal('Berhasil', 'Pendaftaran skuad & tim berhasil disimpan dan Jadwal dibuat otomatis!');
+        };
+
+        window.renderIDCards = function() {
+            const container = document.getElementById('idcard-container');
+            const type = document.getElementById('idcard-filter-type').value;
+            container.innerHTML = '';
+
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            const list = type === 'pemain' 
+                ? (isAdmin ? window.cloudData.pemain.filter(p => p.verified) : window.cloudData.pemain.filter(p => p.team === currentUserTeam && p.verified))
+                : (isAdmin ? window.cloudData.official : window.cloudData.official.filter(o => o.team === currentUserTeam));
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-slate-800/40 rounded-2xl">Belum ada ID Card yang terverifikasi.</div>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const isPlayer = type === 'pemain';
+                let tLogo = window.cloudData.profil[item.team] ? window.cloudData.profil[item.team].logo : "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500";
+                
+                container.innerHTML += `
+                    <div class="id-card-print bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-brand-600 rounded-2xl p-3 shadow-2xl relative overflow-hidden flex flex-col justify-between mx-auto">
+                        <div class="absolute top-0 right-0 bg-brand-600 text-white text-[8px] font-extrabold px-3 py-0.5 rounded-bl-xl uppercase tracking-widest">
+                            ID ${isPlayer ? 'PEMAIN' : 'OFFICIAL'}
+                        </div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <div class="w-7 h-7 bg-white rounded-lg p-0.5 flex items-center justify-center shadow">
+                                <img src="${tLogo}" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h4 class="font-black text-white text-[10px] uppercase tracking-wide">ASSKAR KARAWANG</h4>
+                                <p class="text-[7px] text-slate-400">${item.team}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 my-1">
+                            <img src="${item.foto}" class="w-16 h-20 rounded-xl object-cover border border-slate-700 shadow">
+                            <div class="space-y-0.5 text-[10px]">
+                                <h3 class="font-extrabold text-white text-xs uppercase truncate max-w-[140px]">${item.nama}</h3>
+                                <p class="text-brand-400 font-bold text-[9px]">${isPlayer ? ('#' + item.nomor + ' • ' + item.posisi) : item.jabatan}</p>
+                                <p class="text-slate-300 text-[9px]">Usia: <span class="font-semibold text-white">${item.usia || 'Senior'}</span></p>
+                            </div>
+                        </div>
+
+                        <div class="pt-1 border-t border-slate-700/60 flex justify-between items-center text-[8px] text-slate-400">
+                            <div>NIK: <span class="font-mono text-slate-300">${item.nik || item.kontak}</span></div>
+                            <div class="text-brand-400 font-bold uppercase tracking-wider">VERIFIED 2026</div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.renderJadwal = function() {
+            const container = document.getElementById('list-jadwal-container');
+            const filterGroup = document.getElementById('jadwal-group-filter').value;
+            container.innerHTML = '';
+            
+            const filteredJadwal = filterGroup === 'ALL' ? window.cloudData.jadwal : window.cloudData.jadwal.filter(j => j.usia === filterGroup);
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            
+            if (filteredJadwal.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-slate-800/40 rounded-2xl">Tidak ada jadwal.</div>`;
+                return;
+            }
+
+            filteredJadwal.forEach(j => {
+                let adminActions = '';
+                if (isAdmin) {
+                    adminActions = `
+                        <div class="flex gap-2 pt-2 border-t border-slate-700/50 justify-end">
+                            <button onclick="editJadwal('${j.id}')" class="text-xs text-amber-400 px-2.5 py-1 bg-amber-500/10 rounded-lg"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                            <button onclick="deleteJadwal('${j.id}')" class="text-xs text-rose-400 px-2.5 py-1 bg-rose-500/10 rounded-lg"><i class="fa-solid fa-trash mr-1"></i> Hapus</button>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-slate-800/70 border border-slate-700/50 rounded-2xl p-5 space-y-4 shadow-lg">
+                        <div class="flex justify-between items-center"><span class="text-xs text-brand-400 font-semibold">${j.tgl} | ${j.waktu} WIB</span><span class="text-[10px] bg-slate-900 px-2.5 py-0.5 rounded-full text-slate-300 font-bold">${j.usia}</span></div>
+                        <div class="text-center py-3 bg-slate-900/60 rounded-xl"><div class="font-bold text-white">${j.tim1}</div><div class="text-xs text-slate-400 my-1">VS</div><div class="font-bold text-white">${j.tim2}</div></div>
+                        <div class="text-xs text-slate-400"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i> ${j.lokasi}</div>
+                        ${adminActions}
+                    </div>
+                `;
+            });
+        };
+
+        window.openJadwalModal = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menambah/mengedit jadwal.');
+            document.getElementById('form-jadwal').reset();
+            document.getElementById('j-edit-id').value = '';
+            document.getElementById('modal-jadwal').classList.remove('hidden');
+        };
+
+        window.editJadwal = function(id) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat mengedit jadwal.');
+            const j = window.cloudData.jadwal.find(x => x.id === id);
+            if (!j) return;
+            document.getElementById('j-edit-id').value = j.id;
+            document.getElementById('j-usia').value = j.usia;
+            document.getElementById('j-tgl').value = j.tgl;
+            document.getElementById('j-waktu').value = j.waktu;
+            document.getElementById('j-tim1').value = j.tim1;
+            document.getElementById('j-tim2').value = j.tim2;
+            document.getElementById('j-lokasi').value = j.lokasi;
+            document.getElementById('modal-jadwal').classList.remove('hidden');
+        };
+        window.closeJadwalModal = function() { document.getElementById('modal-jadwal').classList.add('hidden'); };
+
+        window.saveJadwal = function(e) {
+            e.preventDefault();
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menyimpan jadwal.');
+
+            const id = document.getElementById('j-edit-id').value;
+            const usia = document.getElementById('j-usia').value;
+            const tgl = document.getElementById('j-tgl').value;
+            const waktu = document.getElementById('j-waktu').value;
+            const tim1 = document.getElementById('j-tim1').value.trim();
+            const tim2 = document.getElementById('j-tim2').value.trim();
+            const lokasi = document.getElementById('j-lokasi').value.trim();
+
+            if (id) {
+                let j = window.cloudData.jadwal.find(x => x.id === id);
+                if (j) {
+                    j.usia = usia;
+                    j.tgl = tgl;
+                    j.waktu = waktu;
+                    j.tim1 = tim1;
+                    j.tim2 = tim2;
+                    j.lokasi = lokasi;
+                }
+            } else {
+                window.cloudData.jadwal.push({
+                    id: 'JDW-' + Date.now(),
+                    usia: usia,
+                    tgl: tgl,
+                    waktu: waktu,
+                    tim1: tim1,
+                    tim2: tim2,
+                    lokasi: lokasi
+                });
+            }
+
+            window.saveToLocalStorage();
+            closeJadwalModal();
+            renderJadwal();
+            populateJadwalDropdowns();
+            showModal('Berhasil', 'Jadwal pertandingan berhasil disimpan.');
+        };
+
+        window.deleteJadwal = function(id) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menghapus jadwal.');
+            window.cloudData.jadwal = window.cloudData.jadwal.filter(j => j.id !== id);
+            window.saveToLocalStorage();
+            renderJadwal();
+            populateJadwalDropdowns();
+            showModal('Terhapus', 'Jadwal berhasil dihapus.');
+        };
+
+        window.populateKlasemenKompetisiDropdown = function() {
+            const el = document.getElementById('klasemen-kompetisi-select');
+            if(el) {
+                el.innerHTML = '<option value="">-- Semua Kompetisi --</option>';
+                window.cloudData.masterKompetisi.forEach(mk => {
+                    el.innerHTML += `<option value="${mk.nama}">${mk.nama}</option>`;
+                });
+            }
+        };
+
+        window.populateJadwalDropdowns = function() {
+            const el = document.getElementById('summary-filter-jadwal');
+            const groupFilter = document.getElementById('summary-group-filter') ? document.getElementById('summary-group-filter').value : 'ALL';
+            if (el) {
+                el.innerHTML = '<option value="">Pilih Pertandingan</option>';
+                const filtered = groupFilter === 'ALL' ? window.cloudData.jadwal : window.cloudData.jadwal.filter(j => j.usia === groupFilter);
+                filtered.forEach(j => { el.innerHTML += `<option value="${j.id}">[${j.usia}] ${j.tim1} vs ${j.tim2}</option>`; });
+            }
+        };
+
+        window.renderKlasemen = function() {
+            const group = document.getElementById('klasemen-group-filter').value;
+            const kompName = document.getElementById('klasemen-kompetisi-select').value;
+            const searchQuery = document.getElementById('klasemen-search').value.toLowerCase();
+            document.getElementById('current-group-label').innerText = group;
+            const tbody = document.getElementById('table-klasemen-body');
+            tbody.innerHTML = '';
+            
+            if (!window.cloudData.klasemen[group]) {
+                window.cloudData.klasemen[group] = [];
+            }
+
+            let listK = window.cloudData.klasemen[group];
+            if (kompName) {
+                let matchingTeams = window.cloudData.kompetisi.filter(k => k.namaKompetisi === kompName && k.usia === group).map(k => k.team);
+                listK = listK.filter(k => matchingTeams.includes(k.tim));
+            }
+            if (searchQuery) {
+                listK = listK.filter(k => k.tim.toLowerCase().includes(searchQuery));
+            }
+
+            if (listK.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500">Belum ada data klasemen untuk filter ini.</td></tr>`;
+                return;
+            }
+
+            listK.sort((a,b) => b.poin - a.poin || b.selisih - a.selisih).forEach((k, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-center font-bold text-brand-400">${idx + 1}</td>
+                        <td class="p-3 font-bold text-white">${k.tim}</td>
+                        <td class="p-3 text-center">${k.main}</td>
+                        <td class="p-3 text-center">${k.menang}</td>
+                        <td class="p-3 text-center">${k.seri}</td>
+                        <td class="p-3 text-center">${k.kalah}</td>
+                        <td class="p-3 text-center">${k.selisih > 0 ? '+' + k.selisih : k.selisih}</td>
+                        <td class="p-3 text-center font-bold text-emerald-400 text-base">${k.poin}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.renderTopScorer = function() {
+            const tbody = document.getElementById('table-topskorer-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let scorersMap = {};
+
+            Object.values(window.cloudData.summary).forEach(sum => {
+                if (sum.scorers) {
+                    sum.scorers.forEach(sc => {
+                        let key = sc.nama + '||' + sc.team;
+                        scorersMap[key] = (scorersMap[key] || 0) + parseInt(sc.gol);
+                    });
+                }
+            });
+
+            let scorersArr = Object.keys(scorersMap).map(k => {
+                let parts = k.split('||');
+                return { nama: parts[0], team: parts[1], gol: scorersMap[k] };
+            });
+
+            scorersArr.sort((a,b) => b.gol - a.gol);
+
+            if (scorersArr.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada data gol tercatat.</td></tr>`;
+                return;
+            }
+
+            scorersArr.forEach((sc, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-center font-bold">${idx + 1}</td>
+                        <td class="p-3 font-semibold text-white">${sc.nama}</td>
+                        <td class="p-3 text-slate-300">${sc.team}</td>
+                        <td class="p-3 text-center font-bold text-emerald-400 text-base">${sc.gol} Gol</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.openInputSkorModal = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menginput hasil pertandingan.');
+            const jId = document.getElementById('summary-filter-jadwal').value;
+            if (!jId) return showModal('Peringatan', 'Pilih pertandingan terlebih dahulu pada dropdown Match Summary.');
+            
+            const j = window.cloudData.jadwal.find(x => x.id === jId);
+            document.getElementById('lbl-tim1').innerText = `Skor ${j.tim1}`;
+            document.getElementById('lbl-tim2').innerText = `Skor ${j.tim2}`;
+
+            const sum = window.cloudData.summary[jId] || { score1: 0, score2: 0, scorers: [], cards: [] };
+            document.getElementById('inp-score1').value = sum.score1;
+            document.getElementById('inp-score2').value = sum.score2;
+
+            const kompTim1 = window.cloudData.kompetisi.find(k => k.team === j.tim1 && k.usia === j.usia);
+            const kompTim2 = window.cloudData.kompetisi.find(k => k.team === j.tim2 && k.usia === j.usia);
+
+            let pemainTim1 = kompTim1 ? window.cloudData.pemain.filter(p => kompTim1.pemainIds.includes(p.id)) : window.cloudData.pemain.filter(p => p.team === j.tim1);
+            let pemainTim2 = kompTim2 ? window.cloudData.pemain.filter(p => kompTim2.pemainIds.includes(p.id)) : window.cloudData.pemain.filter(p => p.team === j.tim2);
+
+            const container = document.getElementById('scorer-inputs-container');
+            container.innerHTML = '';
+
+            let html = `<p class="font-bold text-brand-400">${j.tim1}:</p>`;
+            if(pemainTim1.length === 0) html += `<p class="text-slate-500 text-xs">Belum ada pemain dalam skuad.</p>`;
+            pemainTim1.forEach(p => {
+                let existingSc = sum.scorers.find(s => s.nama === p.nama && s.team === j.tim1);
+                let gVal = existingSc ? existingSc.gol : 0;
+                let existingCardY = sum.cards.find(c => c.nama === p.nama && c.team === j.tim1 && c.type === 'Y');
+                let existingCardR = sum.cards.find(c => c.nama === p.nama && c.team === j.tim1 && c.type === 'R');
+
+                html += `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-slate-800 rounded-lg">
+                        <span class="font-medium text-white"><span class="font-mono text-brand-400 font-bold mr-2">#${p.nomor}</span> ${p.nama}</span>
+                        <div class="flex items-center gap-3 text-xs">
+                            <label class="flex items-center gap-1">G: <input type="number" min="0" data-player="${p.nama}" data-team="${j.tim1}" class="gol-input w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-white text-center" value="${gVal}"></label>
+                            <label class="flex items-center gap-1 text-amber-400"><input type="checkbox" data-cardplayer="${p.nama}" data-cardteam="${j.tim1}" data-cardtype="Y" class="card-input rounded" ${existingCardY ? 'checked' : ''}> Y</label>
+                            <label class="flex items-center gap-1 text-rose-500"><input type="checkbox" data-cardplayer="${p.nama}" data-cardteam="${j.tim1}" data-cardtype="R" class="card-input rounded" ${existingCardR ? 'checked' : ''}> R</label>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `<p class="font-bold text-brand-400 mt-3">${j.tim2}:</p>`;
+            if(pemainTim2.length === 0) html += `<p class="text-slate-500 text-xs">Belum ada pemain dalam skuad.</p>`;
+            pemainTim2.forEach(p => {
+                let existingSc = sum.scorers.find(s => s.nama === p.nama && s.team === j.tim2);
+                let gVal = existingSc ? existingSc.gol : 0;
+                let existingCardY = sum.cards.find(c => c.nama === p.nama && c.team === j.tim2 && c.type === 'Y');
+                let existingCardR = sum.cards.find(c => c.nama === p.nama && c.team === j.tim2 && c.type === 'R');
+
+                html += `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-slate-800 rounded-lg">
+                        <span class="font-medium text-white"><span class="font-mono text-brand-400 font-bold mr-2">#${p.nomor}</span> ${p.nama}</span>
+                        <div class="flex items-center gap-3 text-xs">
+                            <label class="flex items-center gap-1">G: <input type="number" min="0" data-player="${p.nama}" data-team="${j.tim2}" class="gol-input w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-white text-center" value="${gVal}"></label>
+                            <label class="flex items-center gap-1 text-amber-400"><input type="checkbox" data-cardplayer="${p.nama}" data-cardteam="${j.tim2}" data-cardtype="Y" class="card-input rounded" ${existingCardY ? 'checked' : ''}> Y</label>
+                            <label class="flex items-center gap-1 text-rose-500"><input type="checkbox" data-cardplayer="${p.nama}" data-cardteam="${j.tim2}" data-cardtype="R" class="card-input rounded" ${existingCardR ? 'checked' : ''}> R</label>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('modal-input-skor').classList.remove('hidden');
+        };
+
+        window.closeInputSkorModal = function() { document.getElementById('modal-input-skor').classList.add('hidden'); };
+
+        window.saveInputSkor = function(e) {
+            e.preventDefault();
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menyimpan hasil skor.');
+
+            const jId = document.getElementById('summary-filter-jadwal').value;
+            const score1 = parseInt(document.getElementById('inp-score1').value) || 0;
+            const score2 = parseInt(document.getElementById('inp-score2').value) || 0;
+
+            let scorers = [];
+            document.querySelectorAll('.gol-input').forEach(inp => {
+                let gol = parseInt(inp.value) || 0;
+                if (gol > 0) {
+                    scorers.push({ nama: inp.getAttribute('data-player'), team: inp.getAttribute('data-team'), gol: gol });
+                }
+            });
+
+            let cards = [];
+            document.querySelectorAll('.card-input:checked').forEach(chk => {
+                cards.push({
+                    nama: chk.getAttribute('data-cardplayer'),
+                    team: chk.getAttribute('data-cardteam'),
+                    type: chk.getAttribute('data-cardtype')
+                });
+            });
+
+            const j = window.cloudData.jadwal.find(x => x.id === jId);
+            window.cloudData.summary[jId] = {
+                score1: score1,
+                score2: score2,
+                time: j.waktu + ' WIB',
+                location: j.lokasi,
+                scorers: scorers,
+                cards: cards
+            };
+
+            if (!window.cloudData.klasemen[j.usia]) window.cloudData.klasemen[j.usia] = [];
+            let kList = window.cloudData.klasemen[j.usia];
+            let t1Obj = kList.find(x => x.tim === j.tim1);
+            let t2Obj = kList.find(x => x.tim === j.tim2);
+
+            if (!t1Obj) { t1Obj = { tim: j.tim1, main: 0, menang: 0, seri: 0, kalah: 0, selisih: 0, poin: 0 }; kList.push(t1Obj); }
+            if (!t2Obj) { t2Obj = { tim: j.tim2, main: 0, menang: 0, seri: 0, kalah: 0, selisih: 0, poin: 0 }; kList.push(t2Obj); }
+
+            t1Obj.main += 1;
+            t2Obj.main += 1;
+            t1Obj.selisih += (score1 - score2);
+            t2Obj.selisih += (score2 - score1);
+
+            if (score1 > score2) { t1Obj.menang += 1; t1Obj.poin += 3; t2Obj.kalah += 1; }
+            else if (score1 < score2) { t2Obj.menang += 1; t2Obj.poin += 3; t1Obj.kalah += 1; }
+            else { t1Obj.seri += 1; t1Obj.poin += 1; t2Obj.seri += 1; t2Obj.poin += 1; }
+
+            window.cloudData.klasemen[j.usia] = kList;
+
+            window.saveToLocalStorage();
+            closeInputSkorModal();
+            renderSummary();
+            renderTopScorer();
+            renderKlasemen();
+            showModal('Berhasil', 'Hasil pertandingan dan statistik berhasil disimpan.');
+        };
+
+        window.renderDSP = function() {
+            const kompSel = document.getElementById('dsp-filter-kompetisi');
+            if (kompSel.options.length === 0) {
+                window.cloudData.kompetisi.forEach(k => {
+                    kompSel.innerHTML += `<option value="${k.id}">[${k.usia}] ${k.namaKompetisi} (${k.team})</option>`;
+                });
+            }
+
+            const kompId = kompSel.value;
+            const komp = window.cloudData.kompetisi.find(x => x.id === kompId);
+            const jersey = document.getElementById('dsp-jersey-input').value || '-';
+
+            if (!komp) return;
+
+            document.getElementById('dsp-print-kompetisi').innerText = komp.namaKompetisi;
+            document.getElementById('dsp-print-usia').innerText = komp.usia;
+            document.getElementById('dsp-print-team').innerText = komp.team;
+            document.getElementById('dsp-print-jersey').innerText = jersey;
+
+            const tbody = document.getElementById('table-dsp-body');
+            tbody.innerHTML = '';
+
+            const registeredPlayers = window.cloudData.pemain.filter(p => komp.pemainIds.includes(p.id));
+
+            if (registeredPlayers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada pemain terdaftar di kompetisi ini.</td></tr>`;
+                return;
+            }
+
+            registeredPlayers.forEach((p, idx) => {
+                tbody.innerHTML += `
+                    <tr class="h-10">
+                        <td class="border-r border-slate-300 text-center font-bold text-slate-700">${idx + 1}</td>
+                        <td class="border-r border-slate-300 text-center font-mono font-bold text-brand-700">#${p.nomor}</td>
+                        <td class="border-r border-slate-300 px-3 font-semibold">${p.nama}</td>
+                        <td class="border-r border-slate-300 text-center text-slate-600">${p.posisi}</td>
+                        <td class="text-center text-slate-400 text-[11px] italic"><span class="inline-block w-24 border-b border-dotted border-slate-400 py-1">&nbsp;</span></td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.renderSummary = function() {
+            const jId = document.getElementById('summary-filter-jadwal').value;
+            const t1Box = document.getElementById('sum-team1-players');
+            const t2Box = document.getElementById('sum-team2-players');
+            
+            if (!jId) {
+                document.getElementById('sum-match-info').innerText = 'Pilih pertandingan terlebih dahulu';
+                document.getElementById('sum-score1').innerText = '0';
+                document.getElementById('sum-score2').innerText = '0';
+                t1Box.innerHTML = '-';
+                t2Box.innerHTML = '-';
+                document.getElementById('sum-scorers-list').innerText = 'Belum ada data.';
+                document.getElementById('sum-cards-list').innerText = 'Belum ada data.';
+                return;
+            }
+
+            const jadwal = window.cloudData.jadwal.find(j => j.id === jId);
+            document.getElementById('sum-match-info').innerText = `[${jadwal.usia}] ${jadwal.tim1} vs ${jadwal.tim2}`;
+            document.getElementById('sum-match-date').innerText = `Tanggal: ${jadwal.tgl}`;
+            document.getElementById('sum-team1-name').innerText = jadwal.tim1;
+            document.getElementById('sum-team2-name').innerText = jadwal.tim2;
+            document.getElementById('sum-team1-title').innerText = `Daftar Pemain ${jadwal.tim1}`;
+            document.getElementById('sum-team2-title').innerText = `Daftar Pemain ${jadwal.tim2}`;
+
+            const kompTim1 = window.cloudData.kompetisi.find(k => k.team === jadwal.tim1 && k.usia === jadwal.usia);
+            const kompTim2 = window.cloudData.kompetisi.find(k => k.team === jadwal.tim2 && k.usia === jadwal.usia);
+
+            let pemainTim1 = kompTim1 ? window.cloudData.pemain.filter(p => kompTim1.pemainIds.includes(p.id)) : window.cloudData.pemain.filter(p => p.team === jadwal.tim1);
+            let pemainTim2 = kompTim2 ? window.cloudData.pemain.filter(p => kompTim2.pemainIds.includes(p.id)) : window.cloudData.pemain.filter(p => p.team === jadwal.tim2);
+
+            t1Box.innerHTML = pemainTim1.length > 0 ? pemainTim1.map((p, idx) => `<div>${idx + 1}. #${p.nomor} - ${p.nama} (${p.posisi})</div>`).join('') : '<span class="text-slate-500 italic">Belum ada pemain terdaftar.</span>';
+            t2Box.innerHTML = pemainTim2.length > 0 ? pemainTim2.map((p, idx) => `<div>${idx + 1}. #${p.nomor} - ${p.nama} (${p.posisi})</div>`).join('') : '<span class="text-slate-500 italic">Belum ada pemain terdaftar.</span>';
+
+            const summary = window.cloudData.summary[jId];
+            if (summary) {
+                document.getElementById('sum-score1').innerText = summary.score1;
+                document.getElementById('sum-score2').innerText = summary.score2;
+
+                const scList = document.getElementById('sum-scorers-list');
+                scList.innerHTML = '';
+                if (!summary.scorers || summary.scorers.length === 0) {
+                    scList.innerHTML = '<p class="text-slate-500">Belum ada pencetak gol tercatat.</p>';
+                } else {
+                    summary.scorers.forEach(sc => {
+                        scList.innerHTML += `<div class="flex items-center gap-2"><i class="fa-solid fa-futbol text-brand-500"></i> <span><strong>${sc.nama}</strong> (${sc.team}) - ${sc.gol} Gol</span></div>`;
+                    });
+                }
+
+                const cdList = document.getElementById('sum-cards-list');
+                cdList.innerHTML = '';
+                if (!summary.cards || summary.cards.length === 0) {
+                    cdList.innerHTML = '<p class="text-slate-500">Belum ada kartu tercatat.</p>';
+                } else {
+                    summary.cards.forEach(cd => {
+                        let badge = cd.type === 'Y' ? `<span class="bg-amber-400 text-slate-900 font-bold px-1.5 py-0.5 rounded text-[10px]">Kuning</span>` : `<span class="bg-rose-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px]">Merah</span>`;
+                        cdList.innerHTML += `<div class="flex items-center gap-2">${badge} <span><strong>${cd.nama}</strong> (${cd.team})</span></div>`;
+                    });
+                }
+            } else {
+                document.getElementById('sum-score1').innerText = '0';
+                document.getElementById('sum-score2').innerText = '0';
+                document.getElementById('sum-scorers-list').innerText = 'Pertandingan belum diinput hasilnya.';
+                document.getElementById('sum-cards-list').innerText = 'Pertandingan belum diinput hasilnya.';
+            }
+        };
+
+        window.downloadMatchPlayersManual = function() {
+            const jId = document.getElementById('summary-filter-jadwal').value;
+            if (!jId) return showModal('Peringatan', 'Pilih pertandingan terlebih dahulu.');
+            window.print();
+        };
+
+        window.handleAdminPrintPdf = function() {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat mencetak file PDF Laporan Pertandingan.');
+            window.print();
+        };
+
+        window.renderVerifikasiPemain = function() {
+            const tbody = document.getElementById('table-verifikasi-body');
+            tbody.innerHTML = '';
+            const listP = window.cloudData.pemain;
+
+            if (listP.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tidak ada pemain.</td></tr>`;
+                return;
+            }
+
+            listP.forEach(p => {
+                let badge = p.verified ? `<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs font-bold">Terverifikasi</span>` : `<span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold">Pending</span>`;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-center"><input type="checkbox" name="verif_checkbox" value="${p.id}" class="rounded border-slate-700 text-brand-600"></td>
+                        <td class="p-3 flex items-center space-x-3">
+                            <img src="${p.foto}" class="w-8 h-8 rounded-full object-cover">
+                            <span class="font-bold text-white">${p.nama}</span>
+                        </td>
+                        <td class="p-3 text-xs">${p.team}</td>
+                        <td class="p-3 text-xs">${p.usia} | NIK: ${p.nik}</td>
+                        <td class="p-3">${badge}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="verifikasiSingle('${p.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">Verifikasi</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.toggleSelectAllVerif = function(master) {
+            document.querySelectorAll('input[name="verif_checkbox"]').forEach(cb => cb.checked = master.checked);
+        };
+
+        window.verifikasiSingle = function(id) {
+            const p = window.cloudData.pemain.find(x => x.id === id);
+            if (p) {
+                p.verified = true;
+                window.saveToLocalStorage();
+                renderVerifikasiPemain();
+                renderPemain();
+                showModal('Berhasil', `Pemain ${p.nama} berhasil diverifikasi.`);
+            }
+        };
+
+        window.verifikasiMassal = function() {
+            const checked = document.querySelectorAll('input[name="verif_checkbox"]:checked');
+            if (checked.length === 0) return showModal('Peringatan', 'Pilih setidaknya satu pemain.');
+            
+            checked.forEach(cb => {
+                const p = window.cloudData.pemain.find(x => x.id === cb.value);
+                if (p) p.verified = true;
+            });
+
+            window.saveToLocalStorage();
+            renderVerifikasiPemain();
+            renderPemain();
+            showModal('Berhasil', 'Semua pemain yang dipilih berhasil diverifikasi.');
+        };
+
+        window.handleAdminBuatKompetisi = function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('admin-komp-edit-id').value;
+            const nama = document.getElementById('admin-komp-nama').value.trim();
+            const checkboxes = document.querySelectorAll('input[name="admin_usia_chk"]:checked');
+            let usias = Array.from(checkboxes).map(cb => cb.value);
+
+            if (!nama) return showModal('Peringatan', 'Nama kompetisi wajib diisi!');
+            if (usias.length === 0) return showModal('Peringatan', 'Pilih minimal satu kelompok usia!');
+
+            if (editId) {
+                let mk = window.cloudData.masterKompetisi.find(x => x.id === editId);
+                if (mk) {
+                    mk.nama = nama;
+                    mk.usias = usias;
+                }
+            } else {
+                window.cloudData.masterKompetisi.push({
+                    id: 'mk_' + Date.now(),
+                    nama: nama,
+                    usias: usias
+                });
+            }
+
+            window.saveToLocalStorage();
+            resetAdminKompForm();
+            renderAdminMasterKompetisi();
+            populateKlasemenKompetisiDropdown();
+            showModal('Berhasil', 'Data kompetisi berhasil disimpan.');
+        };
+
+        window.editAdminMasterKompetisi = function(id) {
+            const mk = window.cloudData.masterKompetisi.find(x => x.id === id);
+            if (!mk) return;
+            document.getElementById('admin-komp-edit-id').value = mk.id;
+            document.getElementById('admin-komp-nama').value = mk.nama;
+            document.querySelectorAll('input[name="admin_usia_chk"]').forEach(cb => {
+                cb.checked = mk.usias.includes(cb.value);
+            });
+        };
+
+        window.deleteAdminMasterKompetisi = function(id) {
+            if (confirm('Hapus kompetisi ini?')) {
+                window.cloudData.masterKompetisi = window.cloudData.masterKompetisi.filter(x => x.id !== id);
+                window.saveToLocalStorage();
+                renderAdminMasterKompetisi();
+                populateKlasemenKompetisiDropdown();
+                showModal('Terhapus', 'Kompetisi berhasil dihapus.');
+            }
+        };
+
+        window.resetAdminKompForm = function() {
+            document.getElementById('admin-komp-edit-id').value = '';
+            document.getElementById('admin-komp-nama').value = '';
+            document.querySelectorAll('input[name="admin_usia_chk"]').forEach(cb => cb.checked = false);
+        };
+
+        window.renderAdminMasterKompetisi = function() {
+            const container = document.getElementById('admin-list-master-komp');
+            if (!container) return;
+            container.innerHTML = '';
+            if (window.cloudData.masterKompetisi.length === 0) {
+                container.innerHTML = '<p class="text-slate-500">Belum ada kompetisi dibuat.</p>';
+                return;
+            }
+            window.cloudData.masterKompetisi.forEach(mk => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-800 p-2.5 rounded-xl border border-slate-700">
+                        <div>
+                            <strong class="text-white">${mk.nama}</strong>
+                            <div class="text-[10px] text-brand-400 mt-0.5">Usia: ${mk.usias.join(', ')}</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editAdminMasterKompetisi('${mk.id}')" class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteAdminMasterKompetisi('${mk.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.handleTambahTimBaru = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-team-name').value.trim();
+            const pass = document.getElementById('new-team-pass').value.trim();
+            const email = document.getElementById('new-team-email').value.trim();
+
+            if (!name || !pass || !email) return showModal('Peringatan', 'Semua field wajib diisi!');
+            if (window.cloudData.teams.includes(name)) return showModal('Gagal', 'Nama tim sudah terdaftar!');
+
+            window.cloudData.teams.push(name);
+            window.cloudData.passwords[name] = pass;
+            window.cloudData.profil[name] = {
+                nama: name, email: email, tahun: 2026, legalitas: 'Non Berbadan Hukum', legalFile: '#', pemilik: '', telepon: '', alamat: '', logo: 'https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500'
+            };
+
+            window.saveToLocalStorage();
+            document.getElementById('new-team-name').value = '';
+            document.getElementById('new-team-pass').value = '';
+            document.getElementById('new-team-email').value = '';
+            populateTeamDropdowns();
+            renderAdminPasswords();
+            showModal('Berhasil', `Tim baru "${name}" berhasil didaftarkan.`);
+        };
+
+        window.deleteTeam = function(teamName) {
+            const isAdmin = currentUserTeam === 'ASSKAR KRW';
+            if (!isAdmin) return showModal('Akses Ditolak', 'Hanya Admin yang dapat menghapus tim.');
+
+            if (confirm(`Apakah Anda yakin ingin menghapus tim "${teamName}"?`)) {
+                window.cloudData.teams = window.cloudData.teams.filter(t => t !== teamName);
+                delete window.cloudData.passwords[teamName];
+                delete window.cloudData.profil[teamName];
+                window.cloudData.pemain = window.cloudData.pemain.filter(p => p.team !== teamName);
+                window.cloudData.official = window.cloudData.official.filter(o => o.team !== teamName);
+
+                window.saveToLocalStorage();
+                populateTeamDropdowns();
+                renderAdminPasswords();
+                renderPemain();
+                renderOfficial();
+                showModal('Berhasil', `Tim "${teamName}" berhasil dihapus.`);
+            }
+        };
+
+        window.renderAdminPasswords = function() {
+            const container = document.getElementById('admin-passwords-container');
+            if(!container) return;
+            container.innerHTML = '';
+            window.cloudData.teams.forEach(team => {
+                let prof = window.cloudData.profil[team] || { email: 'sahrikapi@gmail.com' };
+                let currentPass = window.cloudData.passwords[team] || '123';
+                let teamEmail = prof.email || 'sahrikapi@gmail.com';
+
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-700/80 p-4 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div class="font-bold text-white text-sm">${team} <span class="text-xs text-amber-400 font-mono">(Sandi: ${currentPass})</span></div>
+                            <div class="flex items-center gap-2">
+                                <a href="mailto:${teamEmail}?subject=Kredensial%20Akses%20ASSKAR%20KARAWANG&body=Halo%20Tim%20${encodeURIComponent(team)},%0A%0ABerikut%20adalah%20data%20akses%20login%20Anda%20ke%20sistem%20ASSKAR%20KARAWANG:%0A-%20Nama%20Tim:%20${encodeURIComponent(team)}%0A-%20Kata%20Sandi:%20${encodeURIComponent(currentPass)}%0A%0ASilakan%20login%20melalui%20sistem%20online%20kami.%0ATerima%20kasih.%0A(Dikirim%20dari%20sahrikapi@gmail.com)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1 rounded font-semibold flex items-center gap-1.5" title="Kirim Akses via Gmail">
+                                    <i class="fa-solid fa-paper-plane"></i> Kirim Email
+                                </a>
+                                <button onclick="deleteTeam('${team}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-500/10 rounded" title="Hapus Tim"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Email Tim Tujuan</label>
+                                <input type="email" id="email-input-${team}" value="${teamEmail}" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="pass-input-${team}" placeholder="Sandi baru..." class="bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white flex-1">
+                                <button onclick="updateTeamPasswordAndEmail('${team}')" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.updateTeamPasswordAndEmail = function(team) {
+            const inputPass = document.getElementById(`pass-input-${team}`).value;
+            const inputEmail = document.getElementById(`email-input-${team}`).value;
+
+            if (inputPass) window.cloudData.passwords[team] = inputPass;
+            if (window.cloudData.profil[team]) window.cloudData.profil[team].email = inputEmail;
+
+            window.saveToLocalStorage();
+            renderAdminPasswords();
+            showModal('Berhasil', `Data untuk ${team} berhasil diperbarui.`);
+        };
+    </script>
+</body>
+</html>
