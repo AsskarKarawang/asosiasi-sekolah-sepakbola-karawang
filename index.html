@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="id" class="h-full">
 <head>
+    <!-- Supabase JS Client CDN Versi 2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ASSKAR KARAWANG - Official System</title>
@@ -1465,33 +1467,113 @@
 
     <!-- Script Utama -->
     <script>
-        let currentUserTeam = null;
+       let currentUserTeam = null;
 
-        const defaultCloudData = {
-            teams: [],
-            passwords: { "ASSKAR KRW": "Admin123" },
-            profil: {},
-            pemain: [],
-            official: [],
-            masterKompetisi: [],
-            kompetisi: [],
-            stages: {},
-            headToHead: {},
-            jadwal: [],
-            summary: {}
+// 1. Inisialisasi Klien Supabase (Ganti URL & Key dengan milik project Anda)
+const SUPABASE_URL = 'https://tnbzfeyhrwarczyatmss.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_P0OGyolIk4wweZg2BI5hVQ_9xsAzB6o';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 2. Struktur Objek Global Cloud Data
+window.cloudData = {
+    teams: [],
+    passwords: { "ASSKAR KRW": "Admin123" },
+    profil: {},
+    pemain: [],
+    official: [],
+    masterKompetisi: [],
+    kompetisi: [],
+    stages: {},
+    headToHead: {},
+    jadwal: [],
+    summary: {}
+};
+
+// 3. Fungsi Asinkron Mengambil Seluruh Data dari Supabase Cloud
+window.fetchCloudData = async function() {
+    try {
+        let { data: teams, error: errTeams } = await supabaseClient.from('teams').select('*');
+        let { data: profiles } = await supabaseClient.from('profiles').select('*');
+        let { data: players } = await supabaseClient.from('players').select('*');
+        let { data: officials } = await supabaseClient.from('officials').select('*');
+        let { data: masterKompetisi } = await supabaseClient.from('master_competitions').select('*');
+        let { data: kompetisi } = await supabaseClient.from('competitions').select('*');
+        let { data: stages } = await supabaseClient.from('stages').select('*');
+        let { data: matches } = await supabaseClient.from('matches').select('*');
+
+        if (errTeams) console.error("Error fetching teams:", errTeams);
+
+        // Petakan hasil database cloud ke struktur objek global aplikasi
+        window.cloudData = {
+            teams: teams ? teams.map(t => t.name) : [],
+            passwords: teams ? teams.reduce((acc, t) => ({ ...acc, [t.name]: t.password }), {}) : {"ASSKAR KRW": "Admin123"},
+            profil: profiles ? profiles.reduce((acc, p) => ({ ...acc, [p.team_name]: p }), {}) : {},
+            pemain: players ? players.map(p => ({
+                id: p.id,
+                team: p.team,
+                usia: p.usia,
+                nama: p.nama,
+                tempatLahir: p.tempat_lahir,
+                tglLahir: p.tgl_lahir,
+                nik: p.nik,
+                nomor: p.nomor,
+                posisi: p.posisi,
+                alamat: p.alamat,
+                foto: p.foto,
+                dokumen: p.dokumen,
+                verified: p.verified
+            })) : [],
+            official: officials ? officials.map(o => ({
+                id: o.id,
+                team: o.team,
+                nama: o.nama,
+                jabatan: o.jabatan,
+                usia: o.usia,
+                kontak: o.kontak,
+                lisensi: o.lisensi,
+                foto: o.foto
+            })) : [],
+            masterKompetisi: masterKompetisi ? masterKompetisi.map(mk => ({ nama: mk.name, usias: mk.usias })) : [],
+            kompetisi: kompetisi ? kompetisi.map(k => ({
+                id: k.id,
+                team: k.team_name,
+                originalTeam: k.original_team,
+                namaKompetisi: k.competition_name,
+                usia: k.usia,
+                pemainIds: k.pemain_ids || []
+            })) : [],
+            stages: stages ? stages.reduce((acc, s) => {
+                if (!acc[s.usia]) acc[s.usia] = [];
+                acc[s.usia].push({ id: s.id, nama: s.name, usia: s.usia, tipe: s.tipe, teams: s.teams || [] });
+                return acc;
+            }, {}) : {},
+            jadwal: matches ? matches.map(m => ({
+                id: m.id,
+                pekan: m.pekan,
+                kompetisi: m.competition,
+                usia: m.usia,
+                tgl: m.tgl,
+                waktu: m.waktu,
+                tim1: m.tim1,
+                tim2: m.tim2,
+                lokasi: m.lokasi,
+                events: m.events || [],
+                manualScore1: m.manual_score1,
+                manualScore2: m.manual_score2
+            })) : []
         };
+        
+        console.log("Data berhasil disinkronkan dari Supabase Cloud!");
+    } catch (err) {
+        console.error("Gagal mengambil data dari Supabase:", err);
+    }
+};
 
-        window.cloudData = JSON.parse(localStorage.getItem('asskar_system_v17_clean')) || defaultCloudData;
-        if (!window.cloudData.passwords["ASSKAR KRW"]) {
-            window.cloudData.passwords["ASSKAR KRW"] = "Admin123";
-        }
-        if (!window.cloudData.stages) window.cloudData.stages = {};
-        if (!window.cloudData.masterKompetisi) window.cloudData.masterKompetisi = [];
-        if (!window.cloudData.teams) window.cloudData.teams = [];
-
-        window.saveToLocalStorage = function() {
-            localStorage.setItem('asskar_system_v17_clean', JSON.stringify(window.cloudData));
-        };
+// 4. Panggil fungsi fetchCloudData saat aplikasi pertama kali dimuat
+window.onload = async function() {
+    await window.fetchCloudData();
+    populateTeamDropdowns();
+};
 
         window.uploadImageFileWithWhiteBg = async function(fileInput, callback) {
             if (!fileInput.files || !fileInput.files[0]) {
