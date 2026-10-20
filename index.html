@@ -1359,47 +1359,28 @@
         let currentUserTeam = null;
 
         const defaultCloudData = {
-            teams: ["Garuda Karawang", "Persika Muda", "Merpati FC"],
-            passwords: { "ASSKAR KRW": "Admin123", "Garuda Karawang": "123", "Persika Muda": "123", "Merpati FC": "123" },
-            profil: {
-                "Garuda Karawang": { nama: "Garuda Karawang", email: "garuda@gmail.com", tahun: 2024, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "H. Andi", telepon: "081234567890", alamat: "Jl. Galuh Mas Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" },
-                "Persika Muda": { nama: "Persika Muda", email: "persika@gmail.com", tahun: 2023, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "Rahmat", telepon: "081298765432", alamat: "Jl. Interchange Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" },
-                "Merpati FC": { nama: "Merpati FC", email: "merpati@gmail.com", tahun: 2025, legalitas: "Non Berbadan Hukum", legalFile: "#", pemilik: "Dedi", telepon: "081311223344", alamat: "Jl. Kosambi Karawang", logo: "https://lh3.googleusercontent.com/d/17c1l2Rd-OFdp_UfTQjwZN0oU29YTrKdV=w500" }
-            },
-            pemain: [
-                { id: "p_1", team: "Garuda Karawang", usia: "U17", nama: "Rizky Ramadhan", tempatLahir: "Karawang", tglLahir: "2009-05-12", nik: "3215011205090001", nomor: 10, posisi: "Penyerang", alamat: "Telukjambe Karawang", foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150", dokumen: "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=300", verified: true },
-                { id: "p_2", team: "Persika Muda", usia: "U17", nama: "Ahmad Fauzi", tempatLahir: "Karawang", tglLahir: "2009-08-20", nik: "3215012008090002", nomor: 7, posisi: "Gelandang", alamat: "Klari Karawang", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", dokumen: "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=300", verified: true }
-            ],
-            official: [
-                { id: "o_1", team: "Garuda Karawang", nama: "Coach Budi", jabatan: "Pelatih Kepala", usia: "U17", kontak: "08111222333", lisensi: "Lisensi B AFC", foto: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150" }
-            ],
-            masterKompetisi: [
-                { id: "mk_1", nama: "Liga Utama Asskar Karawang 2026", usias: ["U15", "U17", "SENIOR"] }
-            ],
-            kompetisi: [
-                { id: "komp_1", team: "Garuda U17 FC", originalTeam: "Garuda Karawang", namaKompetisi: "Liga Utama Asskar Karawang 2026", usia: "U17", pemainIds: ["p_1"] }
-            ],
-            stages: {
-                'U17': [
-                    { id: "stg_1", nama: "Liga Utama Asskar Karawang 2026", tipe: "Tabel", teams: ["Garuda U17 FC", "Persika Muda"] }
-                ]
-            },
+            teams: [],
+            passwords: { "ASSKAR KRW": "Admin123" },
+            profil: {},
+            pemain: [],
+            official: [],
+            masterKompetisi: [],
+            kompetisi: [],
+            stages: {},
             headToHead: {},
-            jadwal: [
-                { id: "JDW-1", pekan: "Match 1", kompetisi: "Liga Utama Asskar Karawang 2026", usia: "U17", tgl: "2026-11-01", waktu: "15:30", tim1: "Garuda U17 FC", tim2: "Persika Muda", lokasi: "Stadion Singaperbangsa Karawang", manualScore1: null, manualScore2: null, events: [] }
-            ],
+            jadwal: [],
             summary: {}
         };
 
-        window.cloudData = JSON.parse(localStorage.getItem('asskar_system_v17')) || defaultCloudData;
+        window.cloudData = JSON.parse(localStorage.getItem('asskar_system_v17_clean')) || defaultCloudData;
         if (!window.cloudData.passwords["ASSKAR KRW"]) {
             window.cloudData.passwords["ASSKAR KRW"] = "Admin123";
         }
         if (!window.cloudData.stages) window.cloudData.stages = {};
-        if (!window.cloudData.masterKompetisi) window.cloudData.masterKompetisi = [{ id: "mk_1", nama: "Liga Utama Asskar Karawang 2026", usias: ["U17"] }];
+        if (!window.cloudData.masterKompetisi) window.cloudData.masterKompetisi = [];
 
         window.saveToLocalStorage = function() {
-            localStorage.setItem('asskar_system_v17', JSON.stringify(window.cloudData));
+            localStorage.setItem('asskar_system_v17_clean', JSON.stringify(window.cloudData));
         };
 
         window.uploadImageFileWithWhiteBg = async function(fileInput, callback) {
