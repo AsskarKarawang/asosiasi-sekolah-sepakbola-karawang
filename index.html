@@ -1601,12 +1601,12 @@
             }
 
             if (!matchedTeam) {
-                return showModal('Akses Ditolak', 'Username belum terdaftar di sistem!');
+                return showModal('Akses Ditolak', 'Username atau Nama Tim belum terdaftar di sistem! Pastikan penulisan sudah benar.');
             }
 
             const correctPass = window.cloudData.passwords[matchedTeam] || '123';
             if (pass !== correctPass) {
-                return showModal('Gagal Masuk', 'Kata sandi salah!');
+                return showModal('Gagal Masuk', 'Kata sandi salah! Silakan periksa kembali kata sandi Anda.');
             }
 
             currentUserTeam = matchedTeam;
